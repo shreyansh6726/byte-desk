@@ -7,7 +7,7 @@ const app = express();
 
 // 1. DATABASE CONNECTION (Updated for Deployment)
 // Uses process.env for production and local string for testing
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("MongoDB Connected..."))
