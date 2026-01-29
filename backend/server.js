@@ -4,30 +4,53 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/my_auth_db');
+// 1. DATABASE CONNECTION (Updated for Deployment)
+// Uses process.env for production and local string for testing
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/my_auth_db';
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("MongoDB Connected..."))
+    .catch(err => console.error("MongoDB Connection Error:", err));
 
 const User = mongoose.model('User', new mongoose.Schema({
     username: String,
-    user_id: String,
+    user_id: { type: String, unique: true }, // Added unique constraint
     password: String
 }));
 
+// 2. CORS CONFIGURATION (Keep this BEFORE your routes)
+const allowedOrigins = [
+  'https://byte-desk.vercel.app', 
+  'http://localhost:3000'        
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 200 
+};
+
+app.use(cors(corsOptions));
+app.use(express.json()); // Only need this once!
+
+// 3. ROUTES
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
-
     try {
-        // 1. Find user by ID
         const user = await User.findOne({ user_id });
         if (!user) return res.status(401).json({ message: "User not found" });
 
-        // 2. Compare hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-        // 3. Success
         res.status(200).json({ 
             message: "Success", 
             username: user.username 
@@ -39,14 +62,22 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/signup', async (req, res) => {
     const { username, user_id, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
     try {
+        // Hashing inside the try block is safer
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, user_id, password: hashedPassword });
         await newUser.save();
         res.status(201).json({ message: "User created" });
     } catch (err) {
-        res.status(400).json({ message: "User ID already exists" });
+        // Checks if the error is a duplicate user_id
+        if (err.code === 11000) {
+            return res.status(400).json({ message: "User ID already exists" });
+        }
+        res.status(500).json({ message: "Error creating user" });
     }
 });
 
-app.listen(5000, () => console.log('Server running on port 5000'));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
