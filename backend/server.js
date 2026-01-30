@@ -5,8 +5,6 @@ const cors = require('cors');
 
 const app = express();
 
-// 1. DATABASE CONNECTION (Updated for Deployment)
-// Uses process.env for production and local string for testing
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
 
 mongoose.connect(MONGO_URI)
@@ -15,11 +13,10 @@ mongoose.connect(MONGO_URI)
 
 const User = mongoose.model('User', new mongoose.Schema({
     username: String,
-    user_id: { type: String, unique: true }, // Added unique constraint
+    user_id: { type: String, unique: true }, 
     password: String
 }));
 
-// 2. CORS CONFIGURATION (Keep this BEFORE your routes)
 const allowedOrigins = [
   'https://byte-desk.vercel.app', 
   'http://localhost:3000'        
@@ -39,9 +36,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json()); // Only need this once!
+app.use(express.json()); 
 
-// 3. ROUTES
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
     try {
@@ -63,13 +59,11 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/signup', async (req, res) => {
     const { username, user_id, password } = req.body;
     try {
-        // Hashing inside the try block is safer
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, user_id, password: hashedPassword });
         await newUser.save();
         res.status(201).json({ message: "User created" });
     } catch (err) {
-        // Checks if the error is a duplicate user_id
         if (err.code === 11000) {
             return res.status(400).json({ message: "User ID already exists" });
         }
