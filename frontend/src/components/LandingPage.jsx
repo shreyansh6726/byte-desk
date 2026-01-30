@@ -78,7 +78,7 @@ const LandingPage = () => {
               style={styles.loaderContainer}
             >
               <div style={styles.spinner} />
-              <p style={styles.loadingText}>Securing connection...</p>
+              <p style={styles.loadingText}>Setting up your Workspace .....</p>
             </motion.div>
           </motion.div>
         )}

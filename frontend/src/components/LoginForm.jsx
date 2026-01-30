@@ -48,7 +48,15 @@ const LoginForm = () => {
           {error && <p style={styles.error}>{error}</p>}
           <div style={styles.inputGroup}>
             <label style={styles.label}>User ID</label>
-            <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} required style={styles.input} />
+            <input 
+              type="text" 
+              name="user_id" 
+              value={formData.user_id} 
+              onChange={handleChange} 
+              required 
+              style={styles.input} 
+              placeholder="Enter your ID"
+            />
           </div>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
@@ -60,8 +68,13 @@ const LoginForm = () => {
                 onChange={handleChange} 
                 required 
                 style={styles.passwordInput} 
+                placeholder="••••••••"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={styles.toggleButton}
+              >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
@@ -79,22 +92,90 @@ const LoginForm = () => {
 const styles = {
   background: { 
     display: 'flex', justifyContent: 'center', alignItems: 'center', 
-    height: '100vh', width: '100%', // Changed from vw
+    height: '100vh', width: '100%', 
     background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', 
     fontFamily: '"Inter", sans-serif' 
   },
-  card: { backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', width: '90%', maxWidth: '360px', textAlign: 'center' },
-  title: { margin: '0 0 32px 0', fontSize: '24px', fontWeight: '600', color: '#1a1a1a' },
-  error: { color: '#dc3545', fontSize: '13px', marginBottom: '15px', backgroundColor: '#f8d7da', padding: '8px', borderRadius: '4px' },
-  inputGroup: { marginBottom: '20px', textAlign: 'left' },
-  label: { display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' },
+  card: { 
+    backgroundColor: '#fff', 
+    padding: '50px 40px', // Increased vertical padding
+    borderRadius: '24px', // More rounded corners for a premium feel
+    boxShadow: '0 20px 40px rgba(0,0,0,0.08)', 
+    width: '95%', 
+    maxWidth: '440px', // Increased from 360px
+    textAlign: 'center' 
+  },
+  title: { 
+    margin: '0 0 40px 0', 
+    fontSize: '32px', // Larger title
+    fontWeight: '700', 
+    color: '#1a1a1a',
+    letterSpacing: '-1px'
+  },
+  error: { 
+    color: '#dc3545', 
+    fontSize: '14px', 
+    marginBottom: '20px', 
+    backgroundColor: '#f8d7da', 
+    padding: '12px', 
+    borderRadius: '8px' 
+  },
+  inputGroup: { marginBottom: '25px', textAlign: 'left' },
+  label: { 
+    display: 'block', 
+    fontSize: '13px', 
+    fontWeight: '600', 
+    color: '#666', 
+    marginBottom: '10px',
+    marginLeft: '4px'
+  },
   passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
-  input: { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#f9f9f9', outline: 'none' },
-  passwordInput: { width: '100%', padding: '12px 45px 12px 16px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#f9f9f9', outline: 'none' },
-  toggleButton: { position: 'absolute', right: '12px', background: 'none', border: 'none', color: '#007bff', fontSize: '12px', fontWeight: '600', cursor: 'pointer' },
-  button: { width: '100%', padding: '14px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '10px' },
-  footerText: { marginTop: '24px', fontSize: '13px', color: '#888' },
-  link: { color: '#007bff', cursor: 'pointer', fontWeight: '500' }
+  input: { 
+    width: '100%', 
+    padding: '16px 20px', // Larger touch area
+    borderRadius: '12px', 
+    border: '1px solid #e0e0e0', 
+    fontSize: '16px', // Larger text for easier reading
+    boxSizing: 'border-box', 
+    backgroundColor: '#fcfcfc', 
+    outline: 'none',
+    transition: 'border-color 0.2s ease'
+  },
+  passwordInput: { 
+    width: '100%', 
+    padding: '16px 60px 16px 20px', 
+    borderRadius: '12px', 
+    border: '1px solid #e0e0e0', 
+    fontSize: '16px', 
+    boxSizing: 'border-box', 
+    backgroundColor: '#fcfcfc', 
+    outline: 'none' 
+  },
+  toggleButton: { 
+    position: 'absolute', 
+    right: '16px', 
+    background: 'none', 
+    border: 'none', 
+    color: '#007bff', 
+    fontSize: '13px', 
+    fontWeight: '700', 
+    cursor: 'pointer' 
+  },
+  button: { 
+    width: '100%', 
+    padding: '16px', 
+    backgroundColor: '#1a1a1a', 
+    color: '#fff', 
+    border: 'none', 
+    borderRadius: '12px', 
+    fontSize: '16px', 
+    fontWeight: '600', 
+    cursor: 'pointer', 
+    marginTop: '15px',
+    transition: 'transform 0.1s ease, background-color 0.2s ease'
+  },
+  footerText: { marginTop: '30px', fontSize: '14px', color: '#666' },
+  link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
 };
 
 export default LoginForm;
