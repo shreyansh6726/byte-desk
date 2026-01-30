@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 // Ensuring the import path is exact
-import Whiteboard from './Whiteboard.jsx'; 
+import Whiteboard from './Whiteboard'; 
 
 const Home = () => {
   const [activeBoard, setActiveBoard] = useState(true);
