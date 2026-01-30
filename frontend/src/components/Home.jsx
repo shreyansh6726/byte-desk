@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 // Explicitly including the extension to help Vercel resolution
-// import Whiteboard from './Whiteboard';
+import Whiteboard from './Whiteboard';
 
 const Home = () => {
   const [activeBoard, setActiveBoard] = useState(true);
