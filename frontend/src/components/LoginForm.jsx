@@ -16,7 +16,7 @@ const LoginForm = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('https://byte-desk.onrender.com', {
+      const response = await fetch('https://byte-desk.onrender.com/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
