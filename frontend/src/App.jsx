@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import Home from './components/Home';
@@ -8,10 +9,12 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Landing Page is now the first thing users see */}
+        <Route path="/" element={<LandingPage />} />
+        
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
         
-        {/* Only accessible if logged in */}
         <Route 
           path="/home" 
           element={
@@ -20,9 +23,6 @@ function App() {
             </ProtectedRoute>
           } 
         />
-
-        {/* Redirect empty path to login */}
-        <Route path="/" element={<LoginForm />} />
       </Routes>
     </Router>
   );
