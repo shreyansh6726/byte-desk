@@ -10,23 +10,17 @@ const Home = () => {
   
   const user = JSON.parse(sessionStorage.getItem('user')) || "Creative Mind";
 
+  // Updated Salutation Logic
   useEffect(() => {
     const hour = new Date().getHours();
     
-    // 8 PM (20) to 4:59 AM
     if (hour >= 20 || hour < 5) {
       setGreeting('Hello');
-    } 
-    // 5 AM to 11:59 AM
-    else if (hour >= 5 && hour < 12) {
+    } else if (hour >= 5 && hour < 12) {
       setGreeting('Good morning');
-    } 
-    // 12 PM to 2:59 PM (14:59)
-    else if (hour >= 12 && hour < 15) {
+    } else if (hour >= 12 && hour < 15) {
       setGreeting('Good afternoon');
-    } 
-    // 3 PM (15) to 7:59 PM (19:59)
-    else {
+    } else {
       setGreeting('Good evening');
     }
   }, []);
@@ -51,6 +45,7 @@ const Home = () => {
       {/* --- TOP NAVBAR --- */}
       <nav style={styles.navbar}>
         <div style={styles.logoSection}>
+          <img src="/logo.png" alt="ByteDesk Logo" style={styles.logoImage} />
           <span style={styles.logoText}>ByteDesk</span>
         </div>
         
@@ -86,10 +81,7 @@ const Home = () => {
           style={styles.sidebar}
         >
           <div style={styles.sidebarHeader}>
-            <button 
-              onClick={() => setIsCollapsed(!isCollapsed)} 
-              style={styles.collapseBtn}
-            >
+            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>
               {isCollapsed ? '→' : '←'}
             </button>
           </div>
@@ -150,24 +142,27 @@ const Home = () => {
 
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc' },
-  navbar: { height: '75px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px', zIndex: 100 },
+  navbar: { height: '75px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px', zIndex: 100, position: 'relative' },
+  
+  // Logo Styles
+  logoSection: { display: 'flex', alignItems: 'center', gap: '10px' },
+  logoImage: { width: '32px', height: '32px', objectFit: 'contain' },
   logoText: { fontSize: '22px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' },
   
-  // Center alignment logic
   centerGroup: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' },
   searchWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   searchIcon: { position: 'absolute', left: '12px', fontSize: '14px', color: '#94a3b8' },
-  searchInput: { width: '350px', padding: '8px 12px 8px 35px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#f1f5f9', fontSize: '14px', outline: 'none', transition: '0.2s', ':focus': { borderColor: '#3b82f6', backgroundColor: '#fff' } },
+  searchInput: { width: '350px', padding: '8px 12px 8px 35px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#f1f5f9', fontSize: '14px', outline: 'none' },
   navLinksContainer: { display: 'flex', gap: '20px' },
-  navLink: { fontSize: '12px', fontWeight: '600', color: '#64748b', cursor: 'pointer', transition: '0.2s', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  navLink: { fontSize: '12px', fontWeight: '600', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px' },
 
   logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' },
   mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
-  sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' },
+  sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', position: 'relative' },
   sidebarHeader: { padding: '20px', display: 'flex', justifyContent: 'center' },
   collapseBtn: { background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' },
   menuList: { padding: '12px' },
-  menuItem: { display: 'flex', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', marginBottom: '8px', cursor: 'pointer', transition: '0.2s', color: '#475569' },
+  menuItem: { display: 'flex', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', marginBottom: '8px', cursor: 'pointer', color: '#475569' },
   menuIcon: { fontSize: '20px', minWidth: '24px' },
   menuText: { marginLeft: '16px', fontSize: '15px', fontWeight: '500', whiteSpace: 'nowrap' },
   content: { flex: 1, padding: '40px', overflowY: 'auto' },
