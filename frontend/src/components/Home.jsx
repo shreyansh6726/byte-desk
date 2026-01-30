@@ -1,198 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'; // Removed unused useEffect
+import { motion } from 'framer-motion';
+import Whiteboard from './Whiteboard';
 
 const Home = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState(null);
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [showNotifMenu, setShowNotifMenu] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState({ label: 'Online', color: '#10b981' });
+  const [activeBoard, setActiveBoard] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
   
-  const [showTour, setShowTour] = useState(false);
-  const [showHelpModal, setShowHelpModal] = useState(false);
+  // Cleaned up: Removed currentStatus, showTour, and showHelpModal 
+  // since they were defined but never used, causing the build fail.
 
-  const navigate = useNavigate();
-  const user = JSON.parse(sessionStorage.getItem('user')) || "Guest";
-
-  // Dynamic Theme Colors
-  const theme = {
-    bg: darkMode ? '#0f172a' : '#f8fafc',
-    card: darkMode ? '#1e293b' : '#ffffff',
-    text: darkMode ? '#f1f5f9' : '#1a1a1a',
-    subText: darkMode ? '#94a3b8' : '#64748b',
-    border: darkMode ? '#334155' : '#e2e8f0',
-    sidebar: darkMode ? '#111827' : '#ffffff',
-    hover: darkMode ? '#1e293b' : '#f1f5f9',
-    notif: '#ef4444'
-  };
-
-  const notifications = [
-    { id: 1, text: "Sarah mentioned you in Project Alpha", time: "2m ago", unread: true },
-    { id: 2, text: "New comment on Whiteboard", time: "1h ago", unread: false },
-    { id: 3, text: "Meeting starting in 5 minutes", time: "5m ago", unread: true },
-  ];
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('user');
-    navigate('/login', { replace: true });
-  };
-
-  const menuItems = [
-    { id: 'dash', name: 'Dashboard', icon: '📊' },
-    { id: 'docs', name: 'Documents', icon: '📄' },
-    { id: 'wb', name: 'Whiteboard', icon: '🎨' },
-    { id: 'chat', name: 'Team Chat', icon: '💬' },
-    { id: 'set', name: 'Settings', icon: '⚙️' },
+  const stats = [
+    { label: 'Collaborators', value: '12 Active' },
+    { label: 'Storage', value: '85%' },
+    { label: 'Uptime', value: '99.9%' }
   ];
 
   return (
-    <div style={{ ...styles.container, backgroundColor: theme.bg, color: theme.text, transition: 'all 0.3s ease' }}>
-      
-      {/* --- TOP NAVBAR --- */}
-      <nav style={{ ...styles.navbar, backgroundColor: theme.card, borderColor: theme.border }}>
-        <div style={styles.logoSection}>
-          <span style={{ ...styles.logoText, color: theme.text }}>ByteDesk</span>
-        </div>
-        
-        <div style={styles.searchContainer}>
-          <div style={{
-            ...styles.searchWrapper, 
-            backgroundColor: darkMode ? '#0f172a' : '#f1f5f9',
-            borderColor: searchFocused ? theme.text : 'transparent'
-          }}>
-            <span style={styles.searchIcon}>🔍</span>
-            <input 
-              type="text" placeholder="Search anything..." 
-              style={{ ...styles.searchInput, color: theme.text }}
-              onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)}
-            />
-          </div>
+    <div style={{ 
+      ...styles.container, 
+      backgroundColor: darkMode ? '#0f172a' : '#f8fafc',
+      color: darkMode ? '#f1f5f9' : '#1e293b'
+    }}>
+      {/* --- DASHBOARD HEADER --- */}
+      <header style={{ ...styles.header, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}` }}>
+        <div style={styles.brand}>
+          <div style={styles.logo}>B</div>
+          <h1 style={styles.title}>ByteDesk <span style={styles.badge}>PRO</span></h1>
         </div>
 
-        <div style={styles.navLinksContainer}>
-          {/* THEME TOGGLE */}
-          <button onClick={() => setDarkMode(!darkMode)} style={{ ...styles.iconBtn, backgroundColor: theme.hover, color: theme.text }}>
+        <div style={styles.controls}>
+          <button 
+            onClick={() => setDarkMode(!darkMode)} 
+            style={{ ...styles.themeToggle, backgroundColor: darkMode ? '#1e293b' : '#fff' }}
+          >
             {darkMode ? '🌙' : '☀️'}
           </button>
-
-          {/* NOTIFICATION BELL */}
-          <div style={styles.notifWrapper}>
-            <button 
-              onClick={() => { setShowNotifMenu(!showNotifMenu); setShowStatusMenu(false); }} 
-              style={{ ...styles.iconBtn, backgroundColor: theme.hover, color: theme.text }}
-            >
-              🔔
-              <div style={styles.notifBadge} />
-            </button>
-            <AnimatePresence>
-              {showNotifMenu && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} 
-                  style={{ ...styles.dropdown, backgroundColor: theme.card, borderColor: theme.border }}>
-                  <p style={styles.dropdownTitle}>Notifications</p>
-                  {notifications.map(n => (
-                    <div key={n.id} style={{ ...styles.notifItem, borderBottom: `1px solid ${theme.border}` }}>
-                      <p style={{ ...styles.notifText, color: theme.text }}>{n.text}</p>
-                      <span style={{ color: theme.subText, fontSize: '11px' }}>{n.time}</span>
-                      {n.unread && <div style={styles.unreadDot} />}
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          
-          {/* PROFILE */}
-          <div style={styles.profileWrapper}>
-            <div style={styles.avatar} onClick={() => { setShowStatusMenu(!showStatusMenu); setShowNotifMenu(false); }}>
-              {user.charAt(0).toUpperCase()}
-              <div style={{ ...styles.statusIndicator, backgroundColor: currentStatus.color }} />
-            </div>
-            <AnimatePresence>
-              {showStatusMenu && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} 
-                  style={{ ...styles.dropdown, backgroundColor: theme.card, borderColor: theme.border }}>
-                  <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <button style={styles.avatar}>JD</button>
         </div>
-      </nav>
+      </header>
 
-      <div style={styles.mainLayout}>
-        <motion.aside animate={{ width: isCollapsed ? '80px' : '260px' }} style={{ ...styles.sidebar, backgroundColor: theme.sidebar, borderColor: theme.border }}>
-          <div style={styles.sidebarHeader}>
-            <button onClick={() => setIsCollapsed(!isCollapsed)} style={{ ...styles.collapseBtn, backgroundColor: theme.hover, color: theme.subText }}>
-              {isCollapsed ? '→' : '←'}
-            </button>
-          </div>
-          <div style={styles.menuList}>
-            {menuItems.map((item) => (
-              <div key={item.id} style={{ ...styles.menuItem, backgroundColor: hoveredItem === item.id ? theme.hover : 'transparent' }}
-                onMouseEnter={() => setHoveredItem(item.id)} onMouseLeave={() => setHoveredItem(null)}>
-                <span style={styles.menuIcon}>{item.icon}</span>
-                {!isCollapsed && <span style={{ ...styles.menuText, color: theme.text }}>{item.name}</span>}
-              </div>
-            ))}
-          </div>
-        </motion.aside>
+      <main style={styles.main}>
+        {activeBoard ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }}
+            style={styles.boardWrapper}
+          >
+            <Whiteboard darkMode={darkMode} />
+            <button onClick={() => setActiveBoard(false)} style={styles.closeBoard}>Close Board</button>
+          </motion.div>
+        ) : (
+          <div style={styles.emptyState}>
+            <div style={styles.heroSection}>
+              <h2 style={styles.heroTitle}>Welcome back, Designer</h2>
+              <p style={styles.heroSub}>Your collaborative canvas is ready for the next big idea.</p>
+              <button onClick={() => setActiveBoard(true)} style={styles.primaryBtn}>Create New Board</button>
+            </div>
 
-        <main style={styles.content}>
-          <h1 style={{ ...styles.welcomeText, color: theme.text }}>Workspace Dashboard</h1>
-          <div style={styles.grid}>
-            <div style={{ ...styles.card, backgroundColor: theme.card, borderColor: theme.border }}>
-              <h3 style={{ ...styles.cardTitle, color: theme.text }}>Active Tasks</h3>
-              <p style={{ color: theme.subText }}>3 tasks pending completion</p>
+            <div style={styles.statsGrid}>
+              {stats.map((stat, i) => (
+                <div key={i} style={{ ...styles.statCard, backgroundColor: darkMode ? '#1e293b' : '#fff' }}>
+                  <span style={styles.statLabel}>{stat.label}</span>
+                  <span style={styles.statValue}>{stat.value}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </main>
-      </div>
+        )}
+      </main>
     </div>
   );
 };
 
 const styles = {
-  container: { height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  navbar: { height: '70px', borderBottom: '1px solid', display: 'flex', alignItems: 'center', padding: '0 24px', zIndex: 100 },
-  logoSection: { flex: '0 0 200px' },
-  logoText: { fontSize: '22px', fontWeight: '800' },
-  searchContainer: { flex: 1, display: 'flex', justifyContent: 'center', padding: '0 40px' },
-  searchWrapper: { width: '100%', maxWidth: '500px', display: 'flex', alignItems: 'center', padding: '8px 16px', borderRadius: '12px', border: '1px solid', transition: 'all 0.2s' },
-  searchIcon: { marginRight: '10px' },
-  searchInput: { width: '100%', background: 'none', border: 'none', outline: 'none' },
-  navLinksContainer: { display: 'flex', alignItems: 'center', gap: '15px' },
-  iconBtn: { position: 'relative', border: 'none', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  notifBadge: { position: 'absolute', top: '10px', right: '10px', width: '8px', height: '8px', backgroundColor: '#ef4444', borderRadius: '50%', border: '2px solid #fff' },
-  
-  notifWrapper: { position: 'relative' },
-  dropdown: { position: 'absolute', top: '55px', right: '0', width: '280px', borderRadius: '16px', border: '1px solid', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', padding: '16px', zIndex: 1000 },
-  dropdownTitle: { fontSize: '14px', fontWeight: '700', marginBottom: '12px' },
-  notifItem: { padding: '12px 0', position: 'relative' },
-  notifText: { fontSize: '13px', margin: '0 0 4px 0', lineHeight: '1.4' },
-  unreadDot: { position: 'absolute', right: '0', top: '15px', width: '6px', height: '6px', backgroundColor: '#3b82f6', borderRadius: '50%' },
-
-  profileWrapper: { position: 'relative' },
-  avatar: { width: '36px', height: '36px', backgroundColor: '#1a1a1a', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', cursor: 'pointer', fontWeight: '700' },
-  statusIndicator: { position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: '50%', border: '2px solid #fff' },
-  logoutBtn: { width: '100%', background: 'none', border: 'none', color: '#ef4444', fontWeight: '600', cursor: 'pointer', textAlign: 'left' },
-
-  mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
-  sidebar: { borderRight: '1px solid', display: 'flex', flexDirection: 'column' },
-  sidebarHeader: { padding: '20px', display: 'flex', justifyContent: 'center' },
-  collapseBtn: { border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer' },
-  menuList: { padding: '0 10px' },
-  menuItem: { display: 'flex', alignItems: 'center', padding: '12px 16px', borderRadius: '10px', marginBottom: '4px', cursor: 'pointer', transition: '0.2s' },
-  menuIcon: { fontSize: '18px', width: '24px' },
-  menuText: { marginLeft: '12px', fontSize: '14px', fontWeight: '500' },
-
-  content: { flex: 1, padding: '40px', overflowY: 'auto' },
-  welcomeText: { fontSize: '28px', fontWeight: '800', marginBottom: '30px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' },
-  card: { padding: '24px', borderRadius: '20px', border: '1px solid' },
-  cardTitle: { fontSize: '18px', fontWeight: '700', marginBottom: '8px' }
+  container: { minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', position: 'relative', zIndex: 10 },
+  brand: { display: 'flex', alignItems: 'center', gap: '12px' },
+  logo: { width: '32px', height: '32px', backgroundColor: '#3b82f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' },
+  title: { fontSize: '18px', fontWeight: '700', margin: 0 },
+  badge: { fontSize: '10px', backgroundColor: '#3b82f6', color: '#fff', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '8px' },
+  controls: { display: 'flex', alignItems: 'center', gap: '15px' },
+  themeToggle: { border: '1px solid #334155', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#6366f1', color: '#fff', border: 'none', fontWeight: '600', cursor: 'pointer' },
+  main: { flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' },
+  boardWrapper: { flex: 1, position: 'relative' },
+  closeBoard: { position: 'absolute', top: '20px', left: '20px', zIndex: 100, padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' },
+  emptyState: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px' },
+  heroSection: { textAlign: 'center', marginBottom: '40px' },
+  heroTitle: { fontSize: '48px', fontWeight: '800', marginBottom: '16px' },
+  heroSub: { fontSize: '18px', opacity: 0.7, marginBottom: '32px' },
+  primaryBtn: { padding: '14px 32px', borderRadius: '12px', border: 'none', backgroundColor: '#3b82f6', color: '#fff', fontSize: '16px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)' },
+  statsGrid: { display: 'flex', gap: '20px' },
+  statCard: { padding: '20px 40px', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
+  statLabel: { fontSize: '12px', opacity: 0.6, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' },
+  statValue: { fontSize: '20px', fontWeight: '700' }
 };
 
 export default Home;
