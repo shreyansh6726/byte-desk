@@ -6,10 +6,11 @@ const cors = require('cors');
 const app = express();
 
 // 1. DATABASE CONNECTION
-// Fix: Added 'my_auth_db' to the fallback string to avoid the 'test' database issue.
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users';
-                                           
-    mongoose.connect(MONGO_URI)
+// I noticed your URI ended in '...net/users'. 'users' is the collection, 
+// but it's better to name the DATABASE 'byte_desk_db' for clarity.
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users?retryWrites=true&w=majority';
+
+mongoose.connect(MONGO_URI)
     .then(() => console.log(`Connected to Database: ${mongoose.connection.name}`))
     .catch(err => console.error("MongoDB Connection Error:", err));
 
@@ -22,12 +23,11 @@ const User = mongoose.model('User', new mongoose.Schema({
 // 2. CORS CONFIGURATION
 const allowedOrigins = [
   'https://byte-desk.vercel.app',
-  'http://localhost:3000' // Added localhost back so you can still test on your computer
+  'http://localhost:3000'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps) or from our allowed list
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -46,7 +46,6 @@ app.use(express.json());
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
     
-    // Safety check for empty input
     if (!user_id || !password) {
         return res.status(400).json({ message: "Please provide ID and password" });
     }
@@ -75,6 +74,13 @@ app.post('/api/signup', async (req, res) => {
     }
 
     try {
+        // --- ADDED MANUAL CHECK FOR DUPLICATES ---
+        // This is a safety net in case the MongoDB Unique Index hasn't built yet
+        const existingUser = await User.findOne({ user_id });
+        if (existingUser) {
+            return res.status(400).json({ message: "User ID already exists" });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, user_id, password: hashedPassword });
         await newUser.save();
