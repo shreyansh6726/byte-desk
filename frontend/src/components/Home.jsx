@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 // Explicitly including the extension to help Vercel resolution
-import Whiteboard from './Whiteboard';
+// import Whiteboard from './Whiteboard';
 
 const Home = () => {
   const [activeBoard, setActiveBoard] = useState(true);
@@ -10,7 +10,7 @@ const Home = () => {
   const stats = [
     { label: 'Collaborators', value: '12 Active' },
     { label: 'Storage', value: '85%' },
-    { label: 'Uptime', value: '99.9%' }
+    { label: 'Uptime', value: '98.9%' }
   ];
 
   const theme = {
