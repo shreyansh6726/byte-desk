@@ -7,9 +7,9 @@ const app = express();
 
 // 1. DATABASE CONNECTION
 // Fix: Added 'my_auth_db' to the fallback string to avoid the 'test' database issue.
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
-
-mongoose.connect(MONGO_URI)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users?retryWrites=true&w=majority';
+                                           
+    mongoose.connect(MONGO_URI)
     .then(() => console.log(`Connected to Database: ${mongoose.connection.name}`))
     .catch(err => console.error("MongoDB Connection Error:", err));
 
@@ -53,7 +53,7 @@ app.post('/api/login', async (req, res) => {
 
     try {
         const user = await User.findOne({ user_id });
-        if (!user) return res.status(401).json({ message: "DEBUG: DATABASE IS EMPTY OR ID WRONG" });
+        if (!user) return res.status(401).json({ message: "User not found" });
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
