@@ -1,14 +1,12 @@
-import React, { useState } from 'react'; // Removed unused useEffect
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Whiteboard from './Whiteboard';
+// Ensuring the import path is exact
+import Whiteboard from './Whiteboard.jsx'; 
 
 const Home = () => {
   const [activeBoard, setActiveBoard] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
   
-  // Cleaned up: Removed currentStatus, showTour, and showHelpModal 
-  // since they were defined but never used, causing the build fail.
-
   const stats = [
     { label: 'Collaborators', value: '12 Active' },
     { label: 'Storage', value: '85%' },
@@ -21,7 +19,6 @@ const Home = () => {
       backgroundColor: darkMode ? '#0f172a' : '#f8fafc',
       color: darkMode ? '#f1f5f9' : '#1e293b'
     }}>
-      {/* --- DASHBOARD HEADER --- */}
       <header style={{ ...styles.header, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}` }}>
         <div style={styles.brand}>
           <div style={styles.logo}>B</div>
@@ -73,8 +70,8 @@ const Home = () => {
 };
 
 const styles = {
-  container: { minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', position: 'relative', zIndex: 10 },
+  container: { minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, sans-serif' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', zIndex: 10 },
   brand: { display: 'flex', alignItems: 'center', gap: '12px' },
   logo: { width: '32px', height: '32px', backgroundColor: '#3b82f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold' },
   title: { fontSize: '18px', fontWeight: '700', margin: 0 },
@@ -84,15 +81,15 @@ const styles = {
   avatar: { width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#6366f1', color: '#fff', border: 'none', fontWeight: '600', cursor: 'pointer' },
   main: { flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' },
   boardWrapper: { flex: 1, position: 'relative' },
-  closeBoard: { position: 'absolute', top: '20px', left: '20px', zIndex: 100, padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' },
+  closeBoard: { position: 'absolute', top: '20px', left: '20px', zIndex: 100, padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: '600', cursor: 'pointer' },
   emptyState: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px' },
   heroSection: { textAlign: 'center', marginBottom: '40px' },
   heroTitle: { fontSize: '48px', fontWeight: '800', marginBottom: '16px' },
   heroSub: { fontSize: '18px', opacity: 0.7, marginBottom: '32px' },
-  primaryBtn: { padding: '14px 32px', borderRadius: '12px', border: 'none', backgroundColor: '#3b82f6', color: '#fff', fontSize: '16px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)' },
+  primaryBtn: { padding: '14px 32px', borderRadius: '12px', border: 'none', backgroundColor: '#3b82f6', color: '#fff', fontSize: '16px', fontWeight: '700', cursor: 'pointer' },
   statsGrid: { display: 'flex', gap: '20px' },
   statCard: { padding: '20px 40px', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
-  statLabel: { fontSize: '12px', opacity: 0.6, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' },
+  statLabel: { fontSize: '12px', opacity: 0.6, marginBottom: '4px', textTransform: 'uppercase' },
   statValue: { fontSize: '20px', fontWeight: '700' }
 };
 
