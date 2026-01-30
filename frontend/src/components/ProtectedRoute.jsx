@@ -1,12 +1,13 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  const user = localStorage.getItem('user');
+  // Changed to sessionStorage for "Close Tab = Logout" security
+  const user = sessionStorage.getItem('user');
+  const location = useLocation();
 
   if (!user) {
-    // If no user is found, redirect them to the login page
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;
