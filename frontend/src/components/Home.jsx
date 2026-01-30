@@ -12,9 +12,23 @@ const Home = () => {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good Morning');
-    else if (hour < 18) setGreeting('Good Afternoon');
-    else setGreeting('Good Evening');
+    
+    // 8 PM (20) to 4:59 AM
+    if (hour >= 20 && hour < 5) {
+      setGreeting('Hello');
+    } 
+    // 5 AM to 11:59 AM
+    else if (hour >= 5 && hour < 12) {
+      setGreeting('Good morning');
+    } 
+    // 12 PM to 2:59 PM (14:59)
+    else if (hour >= 12 && hour < 15) {
+      setGreeting('Good afternoon');
+    } 
+    // 3 PM (15) to 7:59 PM (19:59)
+    else {
+      setGreeting('Good evening');
+    }
   }, []);
 
   const handleLogout = () => {
