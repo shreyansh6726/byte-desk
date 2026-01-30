@@ -7,7 +7,7 @@ const app = express();
 
 // 1. DATABASE CONNECTION
 // Fix: Added 'my_auth_db' to the fallback string to avoid the 'test' database issue.
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/my_auth_db?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log(`Connected to Database: ${mongoose.connection.name}`))
