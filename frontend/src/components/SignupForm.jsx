@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({ username: '', user_id: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false); // New state for toggle
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -34,6 +34,24 @@ const SignupForm = () => {
 
   return (
     <div style={styles.background}>
+      {/* This <style> tag injects CSS to kill the default browser eye icon 
+        that causes the "dirty" overlapping look.
+      */}
+      <style>
+        {`
+          input::-ms-reveal,
+          input::-ms-clear {
+            display: none;
+          }
+          input::-webkit-contacts-auto-fill-button,
+          input::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            display: none !important;
+            pointer-events: none;
+          }
+        `}
+      </style>
+
       <div style={styles.card}>
         <h2 style={styles.title}>Create Account</h2>
         <form onSubmit={handleSubmit}>
@@ -51,14 +69,14 @@ const SignupForm = () => {
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
               <input 
-                type={showPassword ? "text" : "password"} // Dynamic type
+                type={showPassword ? "text" : "password"} 
                 name="password" 
                 onChange={handleChange} 
                 required 
-                style={styles.input} 
+                style={styles.passwordInput} // Using specific style for password
               />
               <button 
-                type="button" // Important: prevents form submission
+                type="button" 
                 onClick={() => setShowPassword(!showPassword)} 
                 style={styles.toggleButton}
               >
@@ -84,9 +102,11 @@ const styles = {
   error: { color: '#dc3545', fontSize: '13px', marginBottom: '15px', backgroundColor: '#f8d7da', padding: '8px', borderRadius: '4px' },
   inputGroup: { marginBottom: '20px', textAlign: 'left' },
   label: { display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' },
-  passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' }, // Keeps button inside
+  passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   input: { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#f9f9f9', outline: 'none' },
-  toggleButton: { position: 'absolute', right: '12px', background: 'none', border: 'none', color: '#007bff', fontSize: '12px', fontWeight: '600', cursor: 'pointer' },
+  // Added extra right padding (45px) so text doesn't hide behind the "Show" button
+  passwordInput: { width: '100%', padding: '12px 45px 12px 16px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#f9f9f9', outline: 'none' },
+  toggleButton: { position: 'absolute', right: '12px', background: 'none', border: 'none', color: '#007bff', fontSize: '12px', fontWeight: '600', cursor: 'pointer', zIndex: 2 },
   button: { width: '100%', padding: '14px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '10px' },
   footerText: { marginTop: '24px', fontSize: '13px', color: '#888' },
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '500' }
