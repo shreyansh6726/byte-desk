@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("MongoDB Connected..."))
