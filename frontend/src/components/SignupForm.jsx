@@ -11,51 +11,38 @@ const SignupForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
-  // --- ADJUSTED PASSWORD STRENGTH LOGIC ---
   const getStrength = (password) => {
     if (!password) return 0;
     let points = 0;
-
     if (password.length >= 8) points++;
-    if (password.length >= 12) points++; // Extra point for length
+    if (password.length >= 12) points++; 
     if (/[A-Z]/.test(password)) points++;
     if (/[0-9]/.test(password)) points++;
     if (/[^A-Za-z0-9]/.test(password)) points++;
-
-    // Penalties for patterns
     const hasConsecutiveIdentical = /(.)\1/.test(password);
     const hasLongRun = /([a-zA-Z]{6,})|([0-9]{6,})/.test(password);
-
-    if (hasConsecutiveIdentical || hasLongRun) {
-        points = Math.max(0, points - 1); 
-    }
-
+    if (hasConsecutiveIdentical || hasLongRun) points = Math.max(0, points - 1); 
     return points;
   };
 
   const validatePassword = (pass) => {
     if (pass.length < 8) return "Password must be at least 8 characters long.";
     if (pass.length > 20) return "Password cannot exceed 20 characters.";
-    if (!/[a-zA-Z]/.test(pass) || !/[0-9]/.test(pass)) {
-      return "Password must contain at least one letter and one number.";
-    }
-    if (/(.)\1/.test(pass)) {
-      return "No consecutive identical characters allowed.";
-    }
+    if (!/[a-zA-Z]/.test(pass) || !/[0-9]/.test(pass)) return "Password must contain at least one letter and one number.";
+    if (/(.)\1/.test(pass)) return "No consecutive identical characters allowed.";
     if (/([a-zA-Z]{6,})/.test(pass)) return "Too many consecutive letters (max 5).";
     if (/([0-9]{6,})/.test(pass)) return "Too many consecutive numbers (max 5).";
-
     return null;
   };
 
   const strength = getStrength(formData.password);
+  const isStrong = strength >= 3;
   const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== '';
   
-  // Updated Thresholds: 1 and 3
   const strengthColor = () => {
-    if (strength < 1) return '#dc3545'; // Weak
-    if (strength < 3) return '#ffc107'; // Moderate
-    return '#28a745'; // Strong
+    if (strength < 1) return '#dc3545';
+    if (strength < 3) return '#ffc107';
+    return '#28a745';
   };
 
   const handleChange = (e) => {
@@ -87,9 +74,18 @@ const SignupForm = () => {
           password: formData.password
         }),
       });
+
       if (response.ok) {
+        // --- AUTO-LOGIN LOGIC ---
+        // Storing the username so the Home page knows who is logged in
+        localStorage.setItem('user', JSON.stringify(formData.username));
+        
         setIsSuccess(true);
-        setTimeout(() => navigate('/login'), 2500);
+        
+        // --- REDIRECT TO HOME ---
+        setTimeout(() => {
+          navigate('/home'); 
+        }, 2500);
       } else {
         const result = await response.json();
         setError(result.message);
@@ -106,6 +102,12 @@ const SignupForm = () => {
           input::-ms-reveal, input::-ms-clear { display: none; }
           input::-webkit-contacts-auto-fill-button, 
           input::-webkit-credentials-auto-fill-button { display: none !important; }
+          
+          @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0px #28a745; transform: scaleY(1); }
+            50% { box-shadow: 0 0 10px #28a745; transform: scaleY(1.5); }
+            100% { box-shadow: 0 0 0px #28a745; transform: scaleY(1); }
+          }
         `}
       </style>
 
@@ -116,8 +118,8 @@ const SignupForm = () => {
               <div style={styles.checkmarkCircle}>
                 <span style={styles.checkmark}>✓</span>
               </div>
-              <h2 style={styles.successTitle}>Account Created!</h2>
-              <p style={styles.successText}>Welcome to ByteDesk. Redirecting...</p>
+              <h2 style={styles.successTitle}>Welcome, {formData.username}!</h2>
+              <p style={styles.successText}>Account created successfully. Taking you home...</p>
             </motion.div>
           </motion.div>
         )}
@@ -159,7 +161,8 @@ const SignupForm = () => {
                 <div style={{
                   ...styles.strengthBar,
                   width: `${Math.min((strength / 5) * 100, 100)}%`,
-                  backgroundColor: strengthColor()
+                  backgroundColor: strengthColor(),
+                  animation: isStrong ? 'pulse-glow 1.5s infinite ease-in-out' : 'none'
                 }} />
                 <span style={{...styles.strengthText, color: strengthColor()}}>
                   {strength < 1 ? 'Weak' : strength < 3 ? 'Moderate' : 'Strong'}
@@ -183,7 +186,7 @@ const SignupForm = () => {
             />
           </div>
 
-          <button type="submit" style={styles.button}>Register</button>
+          <button type="submit" style={styles.button}>Register & Sign In</button>
         </form>
         <p style={styles.footerText}>
           Already have an account? <span onClick={() => navigate('/login')} style={styles.link}>Login</span>
