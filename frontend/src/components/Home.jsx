@@ -14,7 +14,7 @@ const Home = () => {
     const hour = new Date().getHours();
     
     // 8 PM (20) to 4:59 AM
-    if (hour >= 20 && hour < 5) {
+    if (hour >= 20 || hour < 5) {
       setGreeting('Hello');
     } 
     // 5 AM to 11:59 AM
