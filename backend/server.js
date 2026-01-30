@@ -22,8 +22,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 // 2. CORS CONFIGURATION
 const allowedOrigins = [
-  'https://byte-desk.vercel.app',
-  'http://localhost:3000'
+  'https://byte-desk.vercel.app'
 ];
 
 const corsOptions = {
