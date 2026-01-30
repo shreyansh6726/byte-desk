@@ -6,7 +6,6 @@ const Whiteboard = ({ darkMode }) => {
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   
-  // Brush settings
   const [color, setColor] = useState(darkMode ? '#ffffff' : '#1a1a1a');
 
   const theme = {
@@ -17,7 +16,6 @@ const Whiteboard = ({ darkMode }) => {
     accent: '#3b82f6'
   };
 
-  // Synchronize color with theme changes
   useEffect(() => {
     setColor(darkMode ? '#ffffff' : '#1a1a1a');
     initCanvas();
@@ -28,7 +26,6 @@ const Whiteboard = ({ darkMode }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Set resolution for high-DPI displays
     canvas.width = window.innerWidth * 2;
     canvas.height = window.innerHeight * 2;
     canvas.style.width = `${window.innerWidth}px`;
@@ -40,12 +37,12 @@ const Whiteboard = ({ darkMode }) => {
     context.lineJoin = "round";
     contextRef.current = context;
 
-    // Fill background
     context.fillStyle = theme.canvasBg;
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
 
   const startDrawing = ({ nativeEvent }) => {
+    if (!contextRef.current) return;
     const { offsetX, offsetY } = nativeEvent;
     contextRef.current.beginPath();
     contextRef.current.moveTo(offsetX, offsetY);
@@ -55,14 +52,14 @@ const Whiteboard = ({ darkMode }) => {
   };
 
   const draw = ({ nativeEvent }) => {
-    if (!isDrawing) return;
+    if (!isDrawing || !contextRef.current) return;
     const { offsetX, offsetY } = nativeEvent;
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
   };
 
   const stopDrawing = () => {
-    if (isDrawing) {
+    if (isDrawing && contextRef.current) {
       contextRef.current.closePath();
       setIsDrawing(false);
     }
@@ -71,7 +68,7 @@ const Whiteboard = ({ darkMode }) => {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <canvas
-        onMouseDown={startInteraction ? undefined : startDrawing}
+        onMouseDown={startDrawing} // FIXED: Removed the check for undefined startInteraction
         onMouseUp={stopDrawing}
         onMouseMove={draw}
         onMouseLeave={stopDrawing}
@@ -97,8 +94,10 @@ const Whiteboard = ({ darkMode }) => {
         />
         <button 
           onClick={() => {
-            contextRef.current.fillStyle = theme.canvasBg;
-            contextRef.current.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            if (contextRef.current && canvasRef.current) {
+                contextRef.current.fillStyle = theme.canvasBg;
+                contextRef.current.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            }
           }}
           style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '20px' }}
         >
@@ -109,5 +108,4 @@ const Whiteboard = ({ darkMode }) => {
   );
 };
 
-// CRITICAL: Ensure this exactly matches the import name in Home.jsx
 export default Whiteboard;
