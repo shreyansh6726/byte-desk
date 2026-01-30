@@ -10,7 +10,6 @@ const Home = () => {
   
   const user = JSON.parse(sessionStorage.getItem('user')) || "Creative Mind";
 
-  // Updated Salutation Logic
   useEffect(() => {
     const hour = new Date().getHours();
     
@@ -45,14 +44,21 @@ const Home = () => {
       {/* --- TOP NAVBAR --- */}
       <nav style={styles.navbar}>
         <div style={styles.logoSection}>
-          <img src="/logo.png" alt="ByteDesk Logo" style={styles.logoImage} />
+          <img src="/logo.png" alt="Logo" style={styles.logoImage} />
           <span style={styles.logoText}>ByteDesk</span>
         </div>
         
         {/* --- CENTRAL SEARCH & NAV --- */}
         <div style={styles.centerGroup}>
-          <div style={styles.searchWrapper}>
-            <span style={styles.searchIcon}>🔍</span>
+          <div style={styles.searchContainer}>
+            <svg 
+              style={styles.searchIconSvg} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <input 
               type="text" 
               placeholder="Search files, tools, or teams..." 
@@ -142,19 +148,32 @@ const Home = () => {
 
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc' },
-  navbar: { height: '75px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px', zIndex: 100, position: 'relative' },
+  navbar: { height: '80px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px', zIndex: 100, position: 'relative' },
   
-  // Logo Styles
-  logoSection: { display: 'flex', alignItems: 'center', gap: '10px' },
-  logoImage: { width: '32px', height: '32px', objectFit: 'contain' },
-  logoText: { fontSize: '22px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' },
+  logoSection: { display: 'flex', alignItems: 'center', gap: '12px' },
+  logoImage: { width: '28px', height: '28px', objectFit: 'contain' },
+  logoText: { fontSize: '20px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' },
   
   centerGroup: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' },
-  searchWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
-  searchIcon: { position: 'absolute', left: '12px', fontSize: '14px', color: '#94a3b8' },
-  searchInput: { width: '350px', padding: '8px 12px 8px 35px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#f1f5f9', fontSize: '14px', outline: 'none' },
-  navLinksContainer: { display: 'flex', gap: '20px' },
-  navLink: { fontSize: '12px', fontWeight: '600', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  
+  // Professional Search Bar Styles
+  searchContainer: { position: 'relative', display: 'flex', alignItems: 'center' },
+  searchIconSvg: { position: 'absolute', left: '14px', width: '16px', height: '16px', color: '#94a3b8' },
+  searchInput: { 
+    width: '400px', 
+    padding: '10px 16px 10px 42px', 
+    borderRadius: '12px', 
+    border: '1px solid #e2e8f0', 
+    backgroundColor: '#f1f5f9', 
+    fontSize: '14px', 
+    color: '#1e293b',
+    outline: 'none', 
+    transition: 'all 0.2s ease-in-out',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+  },
+
+  navLinksContainer: { display: 'flex', gap: '24px' },
+  navLink: { fontSize: '11px', fontWeight: '700', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px' },
 
   logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' },
   mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
@@ -164,7 +183,7 @@ const styles = {
   menuList: { padding: '12px' },
   menuItem: { display: 'flex', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', marginBottom: '8px', cursor: 'pointer', color: '#475569' },
   menuIcon: { fontSize: '20px', minWidth: '24px' },
-  menuText: { marginLeft: '16px', fontSize: '15px', fontWeight: '500', whiteSpace: 'nowrap' },
+  menuText: { marginLeft: '16px', fontSize: '14px', fontWeight: '500', whiteSpace: 'nowrap' },
   content: { flex: 1, padding: '40px', overflowY: 'auto' },
   contentHeader: { marginBottom: '40px' },
   welcomeText: { fontSize: '32px', fontWeight: '800', color: '#0f172a', margin: 0 },
