@@ -13,7 +13,7 @@ const SignupForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://byte-desk.onrender.com', {
+      const response = await fetch('https://byte-desk.onrender.com/api/singup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

@@ -5,24 +5,29 @@ const cors = require('cors');
 
 const app = express();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/';
+// 1. DATABASE CONNECTION
+// Fix: Added 'my_auth_db' to the fallback string to avoid the 'test' database issue.
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/my_auth_db?retryWrites=true&w=majority';
 
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("MongoDB Connected..."))
+    .then(() => console.log(`Connected to Database: ${mongoose.connection.name}`))
     .catch(err => console.error("MongoDB Connection Error:", err));
 
 const User = mongoose.model('User', new mongoose.Schema({
     username: String,
-    user_id: { type: String, unique: true }, 
-    password: String
+    user_id: { type: String, unique: true, required: true }, 
+    password: { type: String, required: true }
 }));
 
+// 2. CORS CONFIGURATION
 const allowedOrigins = [
-  'https://byte-desk.vercel.app'
+  'https://byte-desk.vercel.app',
+  'http://localhost:3000' // Added localhost back so you can still test on your computer
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps) or from our allowed list
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -37,8 +42,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json()); 
 
+// 3. ROUTES
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
+    
+    // Safety check for empty input
+    if (!user_id || !password) {
+        return res.status(400).json({ message: "Please provide ID and password" });
+    }
+
     try {
         const user = await User.findOne({ user_id });
         if (!user) return res.status(401).json({ message: "User not found" });
@@ -57,6 +69,11 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/signup', async (req, res) => {
     const { username, user_id, password } = req.body;
+    
+    if (!username || !user_id || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, user_id, password: hashedPassword });
