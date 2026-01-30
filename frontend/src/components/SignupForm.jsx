@@ -13,7 +13,7 @@ const SignupForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://byte-desk.onrender.com/api/singup', {
+      const response = await fetch('https://byte-desk.onrender.com/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -25,7 +25,9 @@ const SignupForm = () => {
         const result = await response.json();
         setError(result.message);
       }
-    } catch (err) {
+    } 
+    
+    catch (err) {
       setError("Registration failed.");
     }
   };
