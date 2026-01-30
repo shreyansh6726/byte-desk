@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti'; // Standard for web celebrations
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({ 
@@ -10,6 +11,24 @@ const SignupForm = () => {
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
+
+  // --- CELEBRATION TRIGGER ---
+  const fireConfetti = () => {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
+
+    const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) return clearInterval(interval);
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+  };
 
   const getStrength = (password) => {
     if (!password) return 0;
@@ -76,16 +95,13 @@ const SignupForm = () => {
       });
 
       if (response.ok) {
-        // --- AUTO-LOGIN LOGIC ---
-        // Storing the username so the Home page knows who is logged in
         localStorage.setItem('user', JSON.stringify(formData.username));
-        
         setIsSuccess(true);
+        fireConfetti(); // Boom! 🎊
         
-        // --- REDIRECT TO HOME ---
         setTimeout(() => {
           navigate('/home'); 
-        }, 2500);
+        }, 3500); // Slightly longer delay to let confetti shine
       } else {
         const result = await response.json();
         setError(result.message);
@@ -105,7 +121,7 @@ const SignupForm = () => {
           
           @keyframes pulse-glow {
             0% { box-shadow: 0 0 0px #28a745; transform: scaleY(1); }
-            50% { box-shadow: 0 0 10px #28a745; transform: scaleY(1.5); }
+            50% { box-shadow: 0 0 15px #28a745; transform: scaleY(1.3); }
             100% { box-shadow: 0 0 0px #28a745; transform: scaleY(1); }
           }
         `}
@@ -119,7 +135,7 @@ const SignupForm = () => {
                 <span style={styles.checkmark}>✓</span>
               </div>
               <h2 style={styles.successTitle}>Welcome, {formData.username}!</h2>
-              <p style={styles.successText}>Account created successfully. Taking you home...</p>
+              <p style={styles.successText}>You're all set. Heading to your dashboard...</p>
             </motion.div>
           </motion.div>
         )}
@@ -198,15 +214,15 @@ const SignupForm = () => {
 
 const styles = {
   background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif' },
-  successOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
+  successOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(10px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
   successCard: { textAlign: 'center' },
-  checkmarkCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px' },
+  checkmarkCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px', boxShadow: '0 10px 25px rgba(40,167,69,0.3)' },
   checkmark: { color: 'white', fontSize: '40px' },
-  successTitle: { fontSize: '28px', color: '#1a1a1a' },
+  successTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700' },
   successText: { fontSize: '16px', color: '#666' },
   card: { backgroundColor: '#fff', padding: '50px 40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', width: '95%', maxWidth: '440px', textAlign: 'center' },
   title: { margin: '0 0 40px 0', fontSize: '32px', fontWeight: '700', color: '#1a1a1a' },
-  error: { color: '#dc3545', fontSize: '13px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px', textAlign: 'left', lineHeight: '1.4' },
+  error: { color: '#dc3545', fontSize: '13px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px', textAlign: 'left' },
   inputGroup: { marginBottom: '25px', textAlign: 'left' },
   label: { display: 'block', fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' },
   passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
