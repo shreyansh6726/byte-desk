@@ -19,7 +19,12 @@ const LoginForm = () => {
     setError('');
 
     try {
-      const response = await fetch('https://byte-desk.onrender.com/api/login', {
+      // Detect if running locally or in production
+      const API_BASE_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000' 
+        : 'https://byte-desk.onrender.com'; // or your Vercel link
+
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

@@ -6,8 +6,6 @@ const cors = require('cors');
 const app = express();
 
 // 1. DATABASE CONNECTION
-// I noticed your URI ended in '...net/users'. 'users' is the collection, 
-// but it's better to name the DATABASE 'byte_desk_db' for clarity.
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users?retryWrites=true&w=majority';
 
 mongoose.connect(MONGO_URI)
@@ -20,14 +18,15 @@ const User = mongoose.model('User', new mongoose.Schema({
     password: { type: String, required: true }
 }));
 
-// 2. CORS CONFIGURATION
+// 2. FIXED CORS CONFIGURATION
 const allowedOrigins = [
   'https://byte-desk.vercel.app',
-  ' http://localhost:3000'
+  'http://localhost:3000'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -39,10 +38,15 @@ const corsOptions = {
   optionsSuccessStatus: 200 
 };
 
-app.use(cors(corsOptions));
-app.use(express.json()); 
+app.use(cors(corsOptions)); // Use the robust options
+app.use(express.json());
 
 // 3. ROUTES
+// Health check route - Open http://localhost:5000 in your browser to test
+app.get('/', (req, res) => {
+    res.send("Backend is running and healthy!");
+});
+
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
     
@@ -74,8 +78,6 @@ app.post('/api/signup', async (req, res) => {
     }
 
     try {
-        // --- ADDED MANUAL CHECK FOR DUPLICATES ---
-        // This is a safety net in case the MongoDB Unique Index hasn't built yet
         const existingUser = await User.findOne({ user_id });
         if (existingUser) {
             return res.status(400).json({ message: "User ID already exists" });
