@@ -90,10 +90,14 @@ const LandingPage = () => {
           animate={{ 
             x: [0, 40, 0], 
             y: [0, -40, 0],
-            scale: [1, 1.1, 1], // Subtle area change
-            opacity: [0.4, 0.5, 0.4] // Subtle pulse
+            scale: [1, 2.0, 1], // Doubled expansion area (from 1.5 to 2.0)
+            opacity: [0.4, 0.5, 0.4] 
           }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ 
+            duration: 6, // Doubled speed (from 12s to 6s)
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
           style={{ ...styles.blob, ...styles.blob1 }}
         />
         
@@ -102,10 +106,15 @@ const LandingPage = () => {
           animate={{ 
             x: [0, -30, 0], 
             y: [0, 50, 0],
-            scale: [1, 1.15, 1], // Subtle area change
-            opacity: [0.3, 0.45, 0.3] // Subtle pulse
+            scale: [1, 2.0, 1], // Doubled expansion area (from 1.5 to 2.0)
+            opacity: [0.3, 0.45, 0.3] 
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          transition={{ 
+            duration: 7.5, // Doubled speed (from 15s to 7.5s)
+            repeat: Infinity, 
+            ease: "easeInOut", 
+            delay: 1 // Adjusted delay to match speed
+          }}
           style={{ ...styles.blob, ...styles.blob2 }}
         />
         <div style={styles.gridOverlay} />
