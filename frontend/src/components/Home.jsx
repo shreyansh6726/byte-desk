@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion'; 
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [greeting, setGreeting] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const navigate = useNavigate();
   
   const user = JSON.parse(sessionStorage.getItem('user')) || "Creative Mind";
 
-  // Handle responsiveness via window resize
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) setIsCollapsed(true); // Auto-collapse sidebar on mobile
+      if (mobile) setIsCollapsed(true);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -44,7 +42,7 @@ const Home = () => {
     { name: 'Settings', icon: '⚙️' },
   ];
 
-  const navLinks = ["Home", "Options", "Tools"]; // Reduced for mobile clarity
+  const navLinks = ["Home", "Options", "Tools"];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -76,7 +74,7 @@ const Home = () => {
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
               animate={{ 
-                width: isMobile ? (isSearchFocused ? '160px' : '120px') : (isSearchFocused ? '400px' : '300px') 
+                width: isMobile ? (isSearchFocused ? '140px' : '100px') : (isSearchFocused ? '400px' : '300px') 
               }}
               style={styles.searchInput}
             />
@@ -171,7 +169,7 @@ const styles = {
   searchInput: { padding: '8px 12px 8px 36px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#f1f5f9', fontSize: '14px', outline: 'none' },
   navLinksContainer: { display: 'flex', gap: '15px' },
   navLink: { fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' },
-  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' },
+  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' },
   mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
   sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' },
   sidebarHeader: { padding: '20px', display: 'flex', justifyContent: 'center' },
@@ -187,7 +185,6 @@ const styles = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' },
   card: { backgroundColor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontWeight: '700' },
   cardIcon: { fontSize: '40px', marginBottom: '16px' },
-  // Mobile Specific
   bottomNav: { position: 'fixed', bottom: 0, left: 0, right: 0, height: '70px', backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', zIndex: 1000 },
   bottomNavItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#64748b' },
   fab: { position: 'fixed', bottom: '85px', right: '20px', width: '56px', height: '56px', borderRadius: '28px', backgroundColor: '#0f172a', color: '#fff', fontSize: '24px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 1001 }
