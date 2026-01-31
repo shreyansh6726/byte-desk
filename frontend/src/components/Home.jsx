@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import Whiteboard from './Whiteboard';
+import TermsAndConditions from './TermsAndConditions';
 
 const Home = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState('Dashboard');
   const [greeting, setGreeting] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   
   const user = JSON.parse(sessionStorage.getItem('user')) || "Creative Mind";
@@ -24,6 +28,7 @@ const Home = () => {
     navigate('/login', { replace: true });
   };
 
+  // REMOVED T&C FROM HERE
   const menuItems = [
     { name: 'Dashboard', icon: '📊' },
     { name: 'Documents', icon: '📄' },
@@ -34,63 +39,49 @@ const Home = () => {
 
   const navLinks = ["Home", "Options", "Tools", "About Us", "T&C", "Profile"];
 
-  // Animation Variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } }
+  const handleNavClick = (link) => {
+    if (link === "Home") setActiveTab('Dashboard');
+    else if (link === "T&C") setActiveTab('T&C');
+    // You can add logic for "About Us" or "Profile" here later
   };
 
   return (
     <div style={styles.container}>
-      {/* --- TOP NAVBAR --- */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        style={styles.navbar}
-      >
+      {/* Top Navbar */}
+      <motion.nav initial={{ y: -120 }} animate={{ y: 0 }} style={styles.navbar}>
         <div style={styles.logoSection}>
           <img src="/logo.png" alt="Logo" style={styles.logoImage} />
           <span style={styles.logoText}>ByteDesk</span>
         </div>
         
         <div style={styles.centerGroup}>
-          <div style={styles.searchContainer}>
+          <div style={styles.searchContainer} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <svg style={styles.searchIconSvg} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <motion.input 
               type="text" 
-              placeholder="Search files, tools, or teams..." 
+              placeholder="Search..." 
               value={searchQuery}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
               onChange={(e) => setSearchQuery(e.target.value)}
-              // Dynamic width based on focus
-              animate={{ 
-                width: isSearchFocused ? '550px' : '400px',
-                boxShadow: isSearchFocused ? '0 0 0 3px rgba(59, 130, 246, 0.2)' : '0 0 0 0px rgba(59, 130, 246, 0)'
-              }}
-              style={{
-                ...styles.searchInput,
-                borderColor: isSearchFocused ? '#3b82f6' : '#e2e8f0',
-                backgroundColor: isSearchFocused ? '#ffffff' : '#f1f5f9'
-              }}
+              animate={{ width: (isSearchFocused || isHovered) ? '600px' : '450px' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={styles.searchInput}
             />
           </div>
           <div style={styles.navLinksContainer}>
             {navLinks.map((link) => (
               <motion.span 
                 key={link} 
-                whileHover={{ color: '#0f172a', scale: 1.05 }}
-                style={styles.navLink}
+                whileHover={{ color: '#0f172a', y: -2 }} 
+                style={{
+                  ...styles.navLink, 
+                  color: activeTab === (link === 'Home' ? 'Dashboard' : link) ? '#0f172a' : '#64748b',
+                  borderBottom: activeTab === (link === 'Home' ? 'Dashboard' : link) ? '2px solid #0f172a' : 'none'
+                }} 
+                onClick={() => handleNavClick(link)}
               >
                 {link}
               </motion.span>
@@ -99,87 +90,59 @@ const Home = () => {
         </div>
 
         <div style={styles.profileSection}>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleLogout} 
-            style={styles.logoutBtn}
-          >
-            Logout
-          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} onClick={handleLogout} style={styles.logoutBtn}>Logout</motion.button>
         </div>
       </motion.nav>
 
       <div style={styles.mainLayout}>
-        {/* --- COLLAPSIBLE SIDEBAR --- */}
-        <motion.aside 
-          initial={{ x: -300 }}
-          animate={{ x: 0, width: isCollapsed ? '80px' : '260px' }}
-          style={styles.sidebar}
-        >
+        {/* Sidebar */}
+        <motion.aside animate={{ width: isCollapsed ? '90px' : '280px' }} style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
-            <motion.button 
-              whileHover={{ backgroundColor: '#e2e8f0' }}
-              onClick={() => setIsCollapsed(!isCollapsed)} 
-              style={styles.collapseBtn}
-            >
-              {isCollapsed ? '→' : '←'}
-            </motion.button>
+            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>{isCollapsed ? '→' : '←'}</button>
           </div>
-
           <div style={styles.menuList}>
             {menuItems.map((item) => (
-              <motion.div 
+              <div 
                 key={item.name} 
-                whileHover={{ backgroundColor: '#f1f5f9', x: 5 }}
-                style={styles.menuItem}
+                onClick={() => setActiveTab(item.name)} 
+                style={{
+                  ...styles.menuItem, 
+                  backgroundColor: activeTab === item.name ? '#f1f5f9' : 'transparent',
+                }}
               >
                 <span style={styles.menuIcon}>{item.icon}</span>
-                <AnimatePresence mode="wait">
-                  {!isCollapsed && (
-                    <motion.span 
-                      initial={{ opacity: 0, x: -10 }} 
-                      animate={{ opacity: 1, x: 0 }} 
-                      exit={{ opacity: 0, x: -10 }}
-                      style={styles.menuText}
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {!isCollapsed && <span style={styles.menuText}>{item.name}</span>}
+              </div>
             ))}
           </div>
         </motion.aside>
 
-        {/* --- MAIN CONTENT AREA --- */}
-        <motion.main 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          style={styles.content}
-        >
-          <motion.header variants={itemVariants} style={styles.contentHeader}>
-            <h1 style={styles.welcomeText}>
-              {greeting}, {user}
-            </h1>
-            <p style={styles.subText}>Welcome to your ByteDesk Pro workspace. Let's make something incredible today.</p>
-          </motion.header>
-
-          <motion.section variants={containerVariants} style={styles.grid}>
-            {['Recent Projects', 'Shared with Me', 'Templates'].map((title, idx) => (
-              <motion.div 
-                key={title}
-                variants={itemVariants}
-                whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                style={styles.card}
-              >
-                <span style={styles.cardIcon}>{['📁', '👥', '🧩'][idx]}</span>
-                {title}
+        {/* Dynamic Content Area */}
+        <main style={styles.content}>
+          <AnimatePresence mode="wait">
+            {activeTab === 'Whiteboard' ? (
+              <motion.div key="whiteboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ height: '100%' }}>
+                <Whiteboard />
               </motion.div>
-            ))}
-          </motion.section>
-        </motion.main>
+            ) : activeTab === 'T&C' ? (
+              <motion.div key="terms" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <TermsAndConditions />
+              </motion.div>
+            ) : (
+              <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <header style={styles.contentHeader}>
+                  <h1 style={styles.welcomeText}>{greeting}, {user}</h1>
+                  <p style={styles.subText}>Welcome to your ByteDesk Pro workspace.</p>
+                </header>
+                <div style={styles.grid}>
+                   <div style={styles.card}>Recent Projects</div>
+                   <div style={styles.card}>Shared with Me</div>
+                   <div style={styles.card}>Templates</div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
       </div>
     </div>
   );
@@ -187,40 +150,31 @@ const Home = () => {
 
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc' },
-  navbar: { height: '100px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', zIndex: 100, position: 'relative' },
-  logoSection: { display: 'flex', alignItems: 'center', gap: '14px' },
-  logoImage: { width: '32px', height: '32px', objectFit: 'contain' },
-  logoText: { fontSize: '22px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' },
-  centerGroup: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' },
+  navbar: { height: '130px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', zIndex: 100, position: 'relative' },
+  logoSection: { display: 'flex', alignItems: 'center', gap: '20px' },
+  logoImage: { width: '60px', height: '60px', objectFit: 'contain' },
+  logoText: { fontSize: '30px', fontWeight: '800', color: '#0f172a' },
+  centerGroup: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' },
   searchContainer: { position: 'relative', display: 'flex', alignItems: 'center' },
-  searchIconSvg: { position: 'absolute', left: '16px', width: '18px', height: '18px', color: '#94a3b8', zIndex: 5 },
-  searchInput: { 
-    padding: '12px 20px 12px 48px', 
-    borderRadius: '14px', 
-    border: '1px solid #e2e8f0', 
-    fontSize: '14px', 
-    color: '#1e293b',
-    outline: 'none', 
-    transition: 'border-color 0.3s ease, background-color 0.3s ease',
-  },
-  navLinksContainer: { display: 'flex', gap: '28px' },
-  navLink: { fontSize: '11px', fontWeight: '700', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1.2px' },
-  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' },
+  searchIconSvg: { position: 'absolute', left: '18px', width: '20px', height: '20px', color: '#94a3b8' },
+  searchInput: { padding: '14px 24px 14px 52px', borderRadius: '16px', border: '1px solid #e2e8f0', fontSize: '15px', outline: 'none' },
+  navLinksContainer: { display: 'flex', gap: '32px' },
+  navLink: { fontSize: '12px', fontWeight: '700', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', paddingBottom: '4px' },
+  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '14px 28px', borderRadius: '14px', cursor: 'pointer' },
   mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
-  sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', position: 'relative' },
-  sidebarHeader: { padding: '24px', display: 'flex', justifyContent: 'center' },
-  collapseBtn: { background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '10px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' },
-  menuList: { padding: '0 16px' },
-  menuItem: { display: 'flex', alignItems: 'center', padding: '14px 20px', borderRadius: '14px', marginBottom: '10px', cursor: 'pointer', color: '#475569' },
-  menuIcon: { fontSize: '22px', minWidth: '28px' },
-  menuText: { marginLeft: '16px', fontSize: '15px', fontWeight: '500', whiteSpace: 'nowrap' },
-  content: { flex: 1, padding: '50px 60px', overflowY: 'auto' },
-  contentHeader: { marginBottom: '50px' },
-  welcomeText: { fontSize: '36px', fontWeight: '800', color: '#0f172a', margin: 0 },
-  subText: { color: '#64748b', marginTop: '12px', fontSize: '18px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' },
-  card: { backgroundColor: '#ffffff', height: '240px', borderRadius: '28px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontWeight: '700', cursor: 'pointer' },
-  cardIcon: { fontSize: '48px', marginBottom: '20px', opacity: 0.9 }
+  sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' },
+  sidebarHeader: { padding: '30px 24px', display: 'flex', justifyContent: 'center' },
+  collapseBtn: { background: '#f1f5f9', border: 'none', borderRadius: '12px', width: '42px', height: '42px', cursor: 'pointer' },
+  menuList: { padding: '0 20px' },
+  menuItem: { display: 'flex', alignItems: 'center', padding: '16px 22px', borderRadius: '16px', marginBottom: '12px', cursor: 'pointer' },
+  menuIcon: { fontSize: '24px', minWidth: '32px' },
+  menuText: { marginLeft: '18px', fontSize: '16px', color: '#0f172a' },
+  content: { flex: 1, padding: '60px 80px', overflowY: 'auto' },
+  contentHeader: { marginBottom: '60px' },
+  welcomeText: { fontSize: '42px', fontWeight: '800', color: '#0f172a' },
+  subText: { color: '#64748b', fontSize: '20px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' },
+  card: { backgroundColor: '#ffffff', height: '200px', borderRadius: '28px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }
 };
 
 export default Home;
