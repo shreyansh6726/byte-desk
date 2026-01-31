@@ -101,21 +101,26 @@ const LandingPage = () => {
           style={{ ...styles.blob, ...styles.blob1 }}
         />
         
-        {/* Animated Grey Blob - Bottom Left */}
+        {/* Animated Grey Blob - Bottom Left (Increased Intensity) */}
         <motion.div 
           animate={{ 
             x: [0, -30, 0], 
             y: [0, 50, 0],
-            scale: [1, 3.0, 1], // Doubled expansion area (from 1.5 to 2.0)
-            opacity: [0.3, 0.45, 0.3] 
+            scale: [1, 2.0, 1],
+            opacity: [0.6, 0.85, 0.6] // Increased opacity for higher intensity
           }}
           transition={{ 
-            duration: 5, // Doubled speed (from 15s to 7.5s)
+            duration: 7.5, 
             repeat: Infinity, 
             ease: "easeInOut", 
-            delay: 1 // Adjusted delay to match speed
+            delay: 1 
           }}
-          style={{ ...styles.blob, ...styles.blob2 }}
+          style={{ 
+            ...styles.blob, 
+            ...styles.blob2, 
+            background: '#4a5568', // Deeper, more intense grey
+            opacity: 0.7 // Higher base opacity
+          }}
         />
         <div style={styles.gridOverlay} />
       </div>
