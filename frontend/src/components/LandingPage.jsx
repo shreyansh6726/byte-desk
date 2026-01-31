@@ -51,7 +51,7 @@ const LandingPage = () => {
           body, html {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Fixes global scroll issues */
+            overflow: hidden;
             width: 100%;
             height: 100%;
           }
@@ -85,13 +85,26 @@ const LandingPage = () => {
       </AnimatePresence>
 
       <div style={styles.bgWrapper}>
+        {/* Animated Blue Blob - Top Right */}
         <motion.div 
-          animate={{ x: [0, 40, 0], y: [0, -40, 0] }}
+          animate={{ 
+            x: [0, 40, 0], 
+            y: [0, -40, 0],
+            scale: [1, 1.1, 1], // Subtle area change
+            opacity: [0.4, 0.5, 0.4] // Subtle pulse
+          }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           style={{ ...styles.blob, ...styles.blob1 }}
         />
+        
+        {/* Animated Grey Blob - Bottom Left */}
         <motion.div 
-          animate={{ x: [0, -30, 0], y: [0, 50, 0] }}
+          animate={{ 
+            x: [0, -30, 0], 
+            y: [0, 50, 0],
+            scale: [1, 1.15, 1], // Subtle area change
+            opacity: [0.3, 0.45, 0.3] // Subtle pulse
+          }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           style={{ ...styles.blob, ...styles.blob2 }}
         />
@@ -133,14 +146,14 @@ const LandingPage = () => {
 const styles = {
   container: {
     height: '100vh',
-    width: '100%', // Changed from 100vw to 100%
+    width: '100%',
     backgroundColor: '#f8f9fa',
     color: '#1a1a1a',
     fontFamily: '"Inter", sans-serif',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
-    overflow: 'hidden', // This is the key fix
+    overflow: 'hidden',
     padding: '0 8%',
     userSelect: 'none',
     WebkitUserSelect: 'none',
