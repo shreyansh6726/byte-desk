@@ -118,7 +118,7 @@ const LandingPage = () => {
           style={{ 
             ...styles.blob, 
             ...styles.blob2, 
-            background: '#4a5568', // Deeper, more intense grey
+            background: '#8993a3', // Deeper, more intense grey
             opacity: 0.7 // Higher base opacity
           }}
         />
