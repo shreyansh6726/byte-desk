@@ -106,11 +106,11 @@ const LandingPage = () => {
           animate={{ 
             x: [0, -30, 0], 
             y: [0, 50, 0],
-            scale: [1, 2.0, 1], // Doubled expansion area (from 1.5 to 2.0)
+            scale: [1, 3.0, 1], // Doubled expansion area (from 1.5 to 2.0)
             opacity: [0.3, 0.45, 0.3] 
           }}
           transition={{ 
-            duration: 7.5, // Doubled speed (from 15s to 7.5s)
+            duration: 5, // Doubled speed (from 15s to 7.5s)
             repeat: Infinity, 
             ease: "easeInOut", 
             delay: 1 // Adjusted delay to match speed
