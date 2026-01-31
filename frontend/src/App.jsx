@@ -6,41 +6,45 @@ import MainLayout from './components/MainLayout';
 import Home from './components/Home';
 import Whiteboard from './components/Whiteboard';
 import TermsAndConditions from './components/TermsAndConditions';
-import Login from './components/LoginForm'; // Assuming you have these
+import LoginPage from './components/LoginForm'; // Updated file name
 import Landing from './components/LandingPage'; 
 
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
   const location = useLocation();
   
-  // Check if user is logged in via sessionStorage
-  const [user, setUser] = useState(JSON.parse(sessionStorage.getItem('user')));
+  // PERSISTENT STATE: Check localStorage instead of sessionStorage
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  // Sync user state if sessionStorage changes
+  // Sync user state if localStorage changes (e.g., after login/logout)
   useEffect(() => {
-    const loggedUser = sessionStorage.getItem('user');
-    if (loggedUser) setUser(JSON.parse(loggedUser));
+    const loggedUser = localStorage.getItem('user');
+    setUser(loggedUser ? JSON.parse(loggedUser) : null);
   }, [location]);
 
-  // If there is no user, we only show Public Pages
+  // If no user, show only Public Pages
   if (!user) {
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
   }
 
-  // If user IS logged in, we show the Dashboard Layout
+  // If user is logged in, show the Dashboard Frame
   return (
     <MainLayout activeTab={activeTab} setActiveTab={setActiveTab}>
       <AnimatePresence mode="wait">
         {activeTab === 'Dashboard' && <Home key="dashboard" />}
         {activeTab === 'Whiteboard' && <Whiteboard key="whiteboard" />}
         {activeTab === 'T&C' && <TermsAndConditions key="terms" />}
-        {/* Add more tabs here */}
+        {/* Placeholder for future pages */}
+        {activeTab === 'Profile' && <div key="profile">Profile Settings coming soon...</div>}
       </AnimatePresence>
     </MainLayout>
   );

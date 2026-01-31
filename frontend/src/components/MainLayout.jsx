@@ -10,7 +10,8 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   
-  const user = JSON.parse(sessionStorage.getItem('user')) || "Creative Mind";
+  // PERSISTENCE: Changed from sessionStorage to localStorage
+  const user = JSON.parse(localStorage.getItem('user')) || "Creative Mind";
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -21,8 +22,12 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('user');
-    navigate('/login', { replace: true });
+    // PERSISTENCE: Clear localStorage on logout
+    localStorage.removeItem('user');
+    // Navigate back to landing/login
+    navigate('/', { replace: true });
+    // Optional: reload to ensure all states are wiped clean
+    window.location.reload();
   };
 
   const menuItems = [
@@ -38,19 +43,20 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
   const handleNavClick = (link) => {
     if (link === "Home") setActiveTab('Dashboard');
     else if (link === "T&C") setActiveTab('T&C');
+    // Set other links as needed
+    else setActiveTab(link);
   };
 
   return (
     <div style={styles.container}>
-      {/* Top Navbar - Restored to 130px with Searchbar */}
-      <motion.nav initial={{ y: -130 }} animate={{ y: 0 }} style={styles.navbar}>
+      {/* Top Navbar - Fixed at 140px with Searchbar */}
+      <motion.nav initial={{ y: -140 }} animate={{ y: 0 }} style={styles.navbar}>
         <div style={styles.logoSection}>
           <img src="/logo.png" alt="Logo" style={styles.logoImage} />
           <span style={styles.logoText}>ByteDesk</span>
         </div>
         
         <div style={styles.centerGroup}>
-          {/* Animated Searchbar Restored */}
           <div 
             style={styles.searchContainer} 
             onMouseEnter={() => setIsHovered(true)} 
@@ -96,7 +102,7 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
       </motion.nav>
 
       <div style={styles.mainLayout}>
-        {/* Sidebar - Restored logic and sizes */}
+        {/* Sidebar */}
         <motion.aside animate={{ width: isCollapsed ? '90px' : '280px' }} style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
             <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>{isCollapsed ? '→' : '←'}</button>
@@ -118,9 +124,8 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
           </div>
         </motion.aside>
 
-        {/* Dynamic Space */}
+        {/* Dynamic Content Area */}
         <main style={styles.content}>
-            {/* Greeting Logic moved here so it only shows on Dashboard */}
             {activeTab === 'Dashboard' && (
                 <header style={styles.contentHeader}>
                     <h1 style={styles.welcomeText}>{greeting}, {user}</h1>

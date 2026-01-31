@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LoginForm = () => {
+const LoginPage = () => {
   const [formData, setFormData] = useState({ user_id: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -19,10 +19,9 @@ const LoginForm = () => {
     setError('');
 
     try {
-      // Detect if running locally or in production
       const API_BASE_URL = window.location.hostname === 'localhost' 
         ? 'http://localhost:5000' 
-        : 'https://byte-desk.onrender.com'; // or your Vercel link
+        : 'https://byte-desk.onrender.com';
 
       const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
@@ -33,17 +32,16 @@ const LoginForm = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // --- SECURITY SYNC ---
-        // We use sessionStorage so the ProtectedRoute can see the user
-        // and so the session wipes when the tab is closed.
-        sessionStorage.setItem('user', JSON.stringify(result.username || formData.user_id));
+        // --- PERSISTENT LOGIC ---
+        // Changed sessionStorage to localStorage to remember user across window closes
+        localStorage.setItem('user', JSON.stringify(result.username || formData.user_id));
         
         setUserName(result.username || formData.user_id);
         setIsSuccess(true);
 
-        // Wait for the animation to play before moving to home
+        // Animation delay
         setTimeout(() => {
-          navigate('/home');
+          navigate('/'); // Navigate to root; App.js will detect user and show Dashboard
         }, 2200);
       } else {
         setError(result.message || "Invalid User ID or Password");
@@ -63,7 +61,6 @@ const LoginForm = () => {
         `}
       </style>
 
-      {/* --- SUCCESS OVERLAY --- */}
       <AnimatePresence>
         {isSuccess && (
           <motion.div 
@@ -142,116 +139,25 @@ const LoginForm = () => {
 };
 
 const styles = {
-  background: { 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '100vh', 
-    width: '100%', 
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', 
-    fontFamily: '"Inter", sans-serif', 
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  successOverlay: { 
-    position: 'absolute', 
-    top: 0, 
-    left: 0, 
-    width: '100%', 
-    height: '100%', 
-    backgroundColor: 'rgba(255,255,255,0.98)', 
-    backdropFilter: 'blur(10px)', 
-    zIndex: 100, 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
+  background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif', position: 'relative', overflow: 'hidden' },
+  successOverlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(10px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
   successCard: { textAlign: 'center' },
-  checkmarkCircle: { 
-    width: '80px', 
-    height: '80px', 
-    borderRadius: '50%', 
-    backgroundColor: '#28a745', 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    margin: '0 auto 20px', 
-    boxShadow: '0 10px 25px rgba(40,167,69,0.3)' 
-  },
+  checkmarkCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px', boxShadow: '0 10px 25px rgba(40,167,69,0.3)' },
   checkmark: { color: 'white', fontSize: '40px', fontWeight: 'bold' },
   successTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700' },
   successText: { fontSize: '16px', color: '#666' },
-  card: { 
-    backgroundColor: '#fff', 
-    padding: '50px 40px', 
-    borderRadius: '24px', 
-    boxShadow: '0 20px 40px rgba(0,0,0,0.08)', 
-    width: '95%', 
-    maxWidth: '440px', 
-    textAlign: 'center' 
-  },
+  card: { backgroundColor: '#fff', padding: '50px 40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', width: '95%', maxWidth: '440px', textAlign: 'center' },
   title: { margin: '0 0 40px 0', fontSize: '32px', fontWeight: '700', color: '#1a1a1a' },
-  error: { 
-    color: '#dc3545', 
-    fontSize: '14px', 
-    marginBottom: '20px', 
-    backgroundColor: '#f8d7da', 
-    padding: '12px', 
-    borderRadius: '8px' 
-  },
+  error: { color: '#dc3545', fontSize: '14px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px' },
   inputGroup: { marginBottom: '25px', textAlign: 'left' },
-  label: { 
-    display: 'block', 
-    fontSize: '13px', 
-    fontWeight: '600', 
-    color: '#666', 
-    marginBottom: '10px' 
-  },
+  label: { display: 'block', fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' },
   passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
-  input: { 
-    width: '100%', 
-    padding: '16px 20px', 
-    borderRadius: '12px', 
-    border: '1px solid #e0e0e0', 
-    fontSize: '16px', 
-    boxSizing: 'border-box', 
-    outline: 'none',
-    transition: 'border-color 0.2s'
-  },
-  passwordInput: { 
-    width: '100%', 
-    padding: '16px 60px 16px 20px', 
-    borderRadius: '12px', 
-    border: '1px solid #e0e0e0', 
-    fontSize: '16px', 
-    boxSizing: 'border-box', 
-    outline: 'none' 
-  },
-  toggleButton: { 
-    position: 'absolute', 
-    right: '16px', 
-    background: 'none', 
-    border: 'none', 
-    color: '#007bff', 
-    fontSize: '13px', 
-    fontWeight: '700', 
-    cursor: 'pointer' 
-  },
-  button: { 
-    width: '100%', 
-    padding: '16px', 
-    backgroundColor: '#1a1a1a', 
-    color: '#fff', 
-    border: 'none', 
-    borderRadius: '12px', 
-    fontSize: '16px', 
-    fontWeight: '600', 
-    cursor: 'pointer', 
-    marginTop: '15px',
-    transition: 'background-color 0.2s'
-  },
+  input: { width: '100%', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
+  passwordInput: { width: '100%', padding: '16px 60px 16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
+  toggleButton: { position: 'absolute', right: '16px', background: 'none', border: 'none', color: '#007bff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' },
+  button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '15px' },
   footerText: { marginTop: '30px', fontSize: '14px', color: '#666' },
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
 };
 
-export default LoginForm;
+export default LoginPage;
