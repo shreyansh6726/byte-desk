@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
-const MainLayout = ({ children, activeTab, setActiveTab }) => {
+const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const navigate = useNavigate();
   
-  // PERSISTENCE: Changed from sessionStorage to localStorage
+  // Persistent user display from localStorage
   const user = JSON.parse(localStorage.getItem('user')) || "Creative Mind";
 
   useEffect(() => {
@@ -21,13 +19,8 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
     else setGreeting('Good evening');
   }, []);
 
-  const handleLogout = () => {
-    // PERSISTENCE: Clear localStorage on logout
-    localStorage.removeItem('user');
-    // Navigate back to landing/login
-    navigate('/', { replace: true });
-    // Optional: reload to ensure all states are wiped clean
-    window.location.reload();
+  const handleLogoutClick = () => {
+    onLogoutTrigger();
   };
 
   const menuItems = [
@@ -43,13 +36,11 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
   const handleNavClick = (link) => {
     if (link === "Home") setActiveTab('Dashboard');
     else if (link === "T&C") setActiveTab('T&C');
-    // Set other links as needed
     else setActiveTab(link);
   };
 
   return (
     <div style={styles.container}>
-      {/* Top Navbar - Fixed at 140px with Searchbar */}
       <motion.nav initial={{ y: -140 }} animate={{ y: 0 }} style={styles.navbar}>
         <div style={styles.logoSection}>
           <img src="/logo.png" alt="Logo" style={styles.logoImage} />
@@ -97,15 +88,23 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
         </div>
 
         <div style={styles.profileSection}>
-          <motion.button whileHover={{ scale: 1.05 }} onClick={handleLogout} style={styles.logoutBtn}>Logout</motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            onClick={handleLogoutClick} 
+            style={styles.logoutBtn}
+          >
+            Logout
+          </motion.button>
         </div>
       </motion.nav>
 
       <div style={styles.mainLayout}>
-        {/* Sidebar */}
         <motion.aside animate={{ width: isCollapsed ? '90px' : '280px' }} style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
-            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>{isCollapsed ? '→' : '←'}</button>
+            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>
+              {isCollapsed ? '→' : '←'}
+            </button>
           </div>
           <div style={styles.menuList}>
             {menuItems.map((item) => (
@@ -124,7 +123,6 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
           </div>
         </motion.aside>
 
-        {/* Dynamic Content Area */}
         <main style={styles.content}>
             {activeTab === 'Dashboard' && (
                 <header style={styles.contentHeader}>
@@ -141,6 +139,7 @@ const MainLayout = ({ children, activeTab, setActiveTab }) => {
   );
 };
 
+// Styles remain the same...
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc', overflow: 'hidden' },
   navbar: { height: '140px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', zIndex: 100, position: 'relative' },
@@ -153,15 +152,15 @@ const styles = {
   searchInput: { padding: '14px 24px 14px 52px', borderRadius: '16px', border: '1px solid #e2e8f0', fontSize: '15px', outline: 'none', backgroundColor: '#fcfcfc' },
   navLinksContainer: { display: 'flex', gap: '32px' },
   navLink: { fontSize: '12px', fontWeight: '700', color: '#64748b', cursor: 'pointer', textTransform: 'uppercase', paddingBottom: '4px' },
-  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '14px 28px', borderRadius: '14px', cursor: 'pointer' },
+  logoutBtn: { backgroundColor: '#0f172a', color: '#fff', border: 'none', padding: '14px 28px', borderRadius: '14px', cursor: 'pointer', fontWeight: '600' },
   mainLayout: { display: 'flex', flex: 1, overflow: 'hidden' },
   sidebar: { backgroundColor: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' },
   sidebarHeader: { padding: '30px 24px', display: 'flex', justifyContent: 'center' },
   collapseBtn: { background: '#f1f5f9', border: 'none', borderRadius: '12px', width: '42px', height: '42px', cursor: 'pointer' },
   menuList: { padding: '0 20px' },
-  menuItem: { display: 'flex', alignItems: 'center', padding: '16px 22px', borderRadius: '16px', marginBottom: '12px', cursor: 'pointer' },
+  menuItem: { display: 'flex', alignItems: 'center', padding: '16px 22px', borderRadius: '16px', marginBottom: '12px', cursor: 'pointer', transition: 'background-color 0.2s' },
   menuIcon: { fontSize: '24px', minWidth: '32px' },
-  menuText: { marginLeft: '18px', fontSize: '16px', color: '#0f172a' },
+  menuText: { marginLeft: '18px', fontSize: '16px', color: '#0f172a', fontWeight: '500' },
   content: { flex: 1, padding: '60px 80px', overflowY: 'auto', position: 'relative' },
   contentHeader: { marginBottom: '60px' },
   welcomeText: { fontSize: '42px', fontWeight: '800', color: '#0f172a' },

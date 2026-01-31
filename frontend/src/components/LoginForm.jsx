@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LoginPage = () => {
+const LoginForm = ({ setUser }) => {
   const [formData, setFormData] = useState({ user_id: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,16 +28,21 @@ const LoginPage = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // --- PERSISTENT LOGIC ---
-        // Changed sessionStorage to localStorage to remember user across window closes
-        localStorage.setItem('user', JSON.stringify(result.username || formData.user_id));
+        const loggedUser = result.username || formData.user_id;
         
-        setUserName(result.username || formData.user_id);
+        // 1. Persist User
+        localStorage.setItem('user', JSON.stringify(loggedUser));
+        
+        // 2. Mark session as active so App.jsx doesn't repeat the animation
+        sessionStorage.setItem('session_active', 'true');
+        
+        setUserName(loggedUser);
         setIsSuccess(true);
 
-        // Animation delay
+        // 3. Navigate away after the Green Tick finishes
         setTimeout(() => {
-          navigate('/'); // Navigate to root; App.js will detect user and show Dashboard
+          setUser(loggedUser); // Update App state
+          navigate('/');       // Move to Dashboard
         }, 2200);
       } else {
         setError(result.message || "Invalid User ID or Password");
@@ -53,14 +54,6 @@ const LoginPage = () => {
 
   return (
     <div style={styles.background}>
-      <style>
-        {`
-          input::-ms-reveal, input::-ms-clear { display: none; }
-          input::-webkit-contacts-auto-fill-button, 
-          input::-webkit-credentials-auto-fill-button { display: none !important; }
-        `}
-      </style>
-
       <AnimatePresence>
         {isSuccess && (
           <motion.div 
@@ -78,18 +71,18 @@ const LoginPage = () => {
               <div style={styles.checkmarkCircle}>
                 <span style={styles.checkmark}>✓</span>
               </div>
-              <h2 style={styles.successTitle}>Welcome Back, {userName}!</h2>
+              <h2 style={styles.successTitle}>Logging in, {userName}!</h2>
               <p style={styles.successText}>Authenticating... Preparing your desk.</p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Login Card UI */}
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
-          
           <div style={styles.inputGroup}>
             <label style={styles.label}>User ID</label>
             <input 
@@ -97,12 +90,10 @@ const LoginPage = () => {
               name="user_id" 
               placeholder="Enter your ID" 
               value={formData.user_id}
-              onChange={handleChange} 
-              required 
-              style={styles.input} 
+              onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
+              required style={styles.input} 
             />
           </div>
-          
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
@@ -111,25 +102,16 @@ const LoginPage = () => {
                 name="password" 
                 placeholder="••••••••"
                 value={formData.password}
-                onChange={handleChange} 
-                required 
-                style={styles.passwordInput} 
+                onChange={(e) => setFormData({...formData, password: e.target.value})} 
+                required style={styles.passwordInput} 
               />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)} 
-                style={styles.toggleButton}
-              >
+              <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
-
-          <button type="submit" style={styles.button}>
-            Sign In
-          </button>
+          <button type="submit" style={styles.button}>Sign In</button>
         </form>
-        
         <p style={styles.footerText}>
           Don't have an account? <span onClick={() => navigate('/signup')} style={styles.link}>Sign Up</span>
         </p>
@@ -160,4 +142,4 @@ const styles = {
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
 };
 
-export default LoginPage;
+export default LoginForm;
