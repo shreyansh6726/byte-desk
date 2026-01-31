@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion'; // Removed AnimatePresence
 
 const Whiteboard = () => {
   const canvasRef = useRef(null);
@@ -65,7 +65,7 @@ const Whiteboard = () => {
     const canvas = canvasRef.current;
     const dataURL = canvas.toDataURL();
     setHistory(prev => [...prev, dataURL]);
-    setRedoStack([]); // Clear redo stack on new action
+    setRedoStack([]); 
     localStorage.setItem('whiteboard_save', dataURL);
   };
 
@@ -106,11 +106,8 @@ const Whiteboard = () => {
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
 
-    // Fill background color first
     tempCtx.fillStyle = bgColor;
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    // Draw drawing on top
     tempCtx.drawImage(canvas, 0, 0);
 
     const link = document.createElement('a');
@@ -158,7 +155,6 @@ const Whiteboard = () => {
   return (
     <div style={styles.container}>
       <motion.div initial={{ y: -20 }} animate={{ y: 0 }} style={styles.toolbar}>
-        {/* Color Section */}
         <div style={styles.toolGroup}>
           <div style={styles.colorInputWrapper}>
             <input type="color" value={color} onChange={(e) => updateColor(e.target.value)} style={styles.hiddenColorInput} />
@@ -175,7 +171,6 @@ const Whiteboard = () => {
             ))}
           </div>
           <div style={styles.divider} />
-          {/* Page Color */}
           <div style={styles.colorInputWrapper}>
             <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} style={styles.hiddenColorInput} />
             <div style={{...styles.colorPreview, backgroundColor: bgColor, borderRadius: '4px'}} />
@@ -183,7 +178,6 @@ const Whiteboard = () => {
           </div>
         </div>
 
-        {/* Brush Controls */}
         <div style={styles.toolGroup}>
           <ToolButton icon="🖌️" isActive={tool === 'brush'} onClick={() => setTool('brush')} />
           <ToolButton icon="🧼" isActive={tool === 'eraser'} onClick={() => setTool('eraser')} colorScheme="#64748b" />
@@ -203,7 +197,6 @@ const Whiteboard = () => {
           </div>
         </div>
 
-        {/* Actions */}
         <div style={styles.toolGroup}>
           <ToolButton icon="↩️" onClick={undo} label="Undo" />
           <ToolButton icon="↪️" onClick={redo} label="Redo" />
