@@ -7,7 +7,7 @@ const LoginForm = ({ setUser }) => {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isPending, setIsPending] = useState(false); // New Loading State
+  const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const LoginForm = ({ setUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsPending(true); // Immediate trigger for aesthetic loader
+    setIsPending(true);
 
     try {
       const API_BASE_URL = window.location.hostname === 'localhost' 
@@ -42,8 +42,8 @@ const LoginForm = ({ setUser }) => {
         sessionStorage.setItem('session_active', 'true');
         
         setUserName(loggedUser);
-        setIsPending(false); // Stop loading
-        setIsSuccess(true); // Show success tick
+        setIsPending(false);
+        setIsSuccess(true);
 
         setTimeout(() => {
           setUser(loggedUser);
@@ -72,7 +72,7 @@ const LoginForm = ({ setUser }) => {
       `}</style>
 
       <AnimatePresence>
-        {/* Aesthetic Minimalist Loader - Triggers Immediately */}
+        {/* Aesthetic Minimalist Loader with Progress Bar */}
         {isPending && (
           <motion.div 
             initial={{ opacity: 0 }} 
@@ -85,11 +85,20 @@ const LoginForm = ({ setUser }) => {
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
                 style={styles.loaderTextContent}
               >
                 <h3 style={styles.loaderTitle}>Connecting to Server</h3>
-                <p style={styles.loaderSub}>Waking up your workspace... This may take a moment.</p>
+                <p style={styles.loaderSub}>Waking up your workspace...</p>
+                
+                {/* Visual Progress Bar */}
+                <div style={styles.progressBarBg}>
+                  <motion.div 
+                    initial={{ width: "0%" }}
+                    animate={{ width: "90%" }}
+                    transition={{ duration: 8, ease: "easeOut" }} // Slow crawl to 90%
+                    style={styles.progressBarFill}
+                  />
+                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -183,20 +192,21 @@ const styles = {
   background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif', position: 'relative', overflow: 'hidden' },
   overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
   
-  // Minimalist Loader Styles
-  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
-  spinner: { width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '20px' },
+  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '300px' },
+  spinner: { width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '24px' },
   loaderTitle: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px 0' },
-  loaderSub: { fontSize: '14px', color: '#666', margin: 0 },
+  loaderSub: { fontSize: '14px', color: '#666', margin: '0 0 20px 0' },
 
-  // Success Card Styles
+  // Progress Bar Styles
+  progressBarBg: { width: '100%', height: '4px', backgroundColor: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' },
+  progressBarFill: { height: '100%', backgroundColor: '#1a1a1a', borderRadius: '10px' },
+
   successCard: { textAlign: 'center' },
   checkmarkCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px', boxShadow: '0 10px 25px rgba(40,167,69,0.3)' },
   checkmark: { color: 'white', fontSize: '40px', fontWeight: 'bold' },
   successTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700' },
   successText: { fontSize: '16px', color: '#666' },
 
-  // Form Styles
   card: { backgroundColor: '#fff', padding: '50px 40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', width: '95%', maxWidth: '440px', textAlign: 'center' },
   title: { margin: '0 0 40px 0', fontSize: '32px', fontWeight: '700', color: '#1a1a1a' },
   error: { color: '#dc3545', fontSize: '14px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px' },
