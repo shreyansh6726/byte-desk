@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,7 +20,7 @@ const LoginForm = ({ setUser }) => {
     setIsPending(true);
     setProgressWidth(0);
 
-    // Start the slow crawl (85% over several seconds to cover server wake-up)
+    // Initial crawl animation
     setTimeout(() => setProgressWidth(85), 50);
 
     try {
@@ -36,20 +36,18 @@ const LoginForm = ({ setUser }) => {
 
       const result = await response.json();
 
-      // SIGNAL RECEIVED: Zip to 100% instantly
+      // SHOOT TO 100% - This happens regardless of success or error
       setProgressWidth(100);
 
-      // Wait for the bar to visually hit the end (400ms) before changing UI
+      // Wait for the "zip" animation to finish before showing result
       setTimeout(() => {
         if (response.ok) {
           const loggedUser = result.username || formData.user_id;
-          
           if (rememberMe) {
             localStorage.setItem('user', JSON.stringify(loggedUser));
           } else {
             sessionStorage.setItem('user', JSON.stringify(loggedUser));
           }
-          
           sessionStorage.setItem('session_active', 'true');
           setUserName(loggedUser);
           setIsPending(false);
@@ -63,7 +61,7 @@ const LoginForm = ({ setUser }) => {
           setIsPending(false);
           setError(result.message || "Invalid User ID or Password");
         }
-      }, 400);
+      }, 400); // Duration of the "zip" to 100%
 
     } catch (err) {
       setProgressWidth(100);
@@ -86,7 +84,6 @@ const LoginForm = ({ setUser }) => {
       <AnimatePresence>
         {isPending && (
           <motion.div 
-            key="loader-overlay"
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
@@ -115,7 +112,6 @@ const LoginForm = ({ setUser }) => {
 
         {isSuccess && (
           <motion.div 
-            key="success-overlay"
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             style={styles.overlay}
@@ -129,7 +125,7 @@ const LoginForm = ({ setUser }) => {
                 <span style={styles.checkmark}>✓</span>
               </div>
               <h2 style={styles.successTitle}>Welcome back, {userName}!</h2>
-              <p style={styles.successText}>Access granted. Redirecting...</p>
+              <p style={styles.successText}>Authentication Successful. Logging in...</p>
             </motion.div>
           </motion.div>
         )}
@@ -147,8 +143,7 @@ const LoginForm = ({ setUser }) => {
               placeholder="Enter your ID" 
               value={formData.user_id}
               onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
-              required 
-              style={styles.input} 
+              required style={styles.input} 
             />
           </div>
 
@@ -160,8 +155,7 @@ const LoginForm = ({ setUser }) => {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                required 
-                style={styles.passwordInput} 
+                required style={styles.passwordInput} 
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
                 {showPassword ? "Hide" : "Show"}
