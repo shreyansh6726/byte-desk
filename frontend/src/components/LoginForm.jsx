@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginForm = ({ setUser }) => {
   const [formData, setFormData] = useState({ user_id: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -30,19 +31,20 @@ const LoginForm = ({ setUser }) => {
       if (response.ok) {
         const loggedUser = result.username || formData.user_id;
         
-        // 1. Persist User
-        localStorage.setItem('user', JSON.stringify(loggedUser));
+        if (rememberMe) {
+          localStorage.setItem('user', JSON.stringify(loggedUser));
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(loggedUser));
+        }
         
-        // 2. Mark session as active so App.jsx doesn't repeat the animation
         sessionStorage.setItem('session_active', 'true');
         
         setUserName(loggedUser);
         setIsSuccess(true);
 
-        // 3. Navigate away after the Green Tick finishes
         setTimeout(() => {
-          setUser(loggedUser); // Update App state
-          navigate('/');       // Move to Dashboard
+          setUser(loggedUser);
+          navigate('/');
         }, 2200);
       } else {
         setError(result.message || "Invalid User ID or Password");
@@ -78,7 +80,6 @@ const LoginForm = ({ setUser }) => {
         )}
       </AnimatePresence>
 
-      {/* Login Card UI */}
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit}>
@@ -87,7 +88,6 @@ const LoginForm = ({ setUser }) => {
             <label style={styles.label}>User ID</label>
             <input 
               type="text" 
-              name="user_id" 
               placeholder="Enter your ID" 
               value={formData.user_id}
               onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
@@ -99,7 +99,6 @@ const LoginForm = ({ setUser }) => {
             <div style={styles.passwordWrapper}>
               <input 
                 type={showPassword ? "text" : "password"} 
-                name="password" 
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})} 
@@ -110,6 +109,26 @@ const LoginForm = ({ setUser }) => {
               </button>
             </div>
           </div>
+
+          {/* Persistence & Forgot Password Row */}
+          <div style={styles.actionRow}>
+            <label style={styles.checkboxLabel}>
+              <input 
+                type="checkbox" 
+                checked={rememberMe} 
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={styles.checkbox}
+              />
+              Keep me logged in
+            </label>
+            <span 
+              onClick={() => navigate('/forgot-password')} 
+              style={styles.forgotLink}
+            >
+              Forgot Password?
+            </span>
+          </div>
+
           <button type="submit" style={styles.button}>Sign In</button>
         </form>
         <p style={styles.footerText}>
@@ -131,13 +150,20 @@ const styles = {
   card: { backgroundColor: '#fff', padding: '50px 40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', width: '95%', maxWidth: '440px', textAlign: 'center' },
   title: { margin: '0 0 40px 0', fontSize: '32px', fontWeight: '700', color: '#1a1a1a' },
   error: { color: '#dc3545', fontSize: '14px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px' },
-  inputGroup: { marginBottom: '25px', textAlign: 'left' },
+  inputGroup: { marginBottom: '20px', textAlign: 'left' },
   label: { display: 'block', fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' },
   passwordWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   input: { width: '100%', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
   passwordInput: { width: '100%', padding: '16px 60px 16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
   toggleButton: { position: 'absolute', right: '16px', background: 'none', border: 'none', color: '#007bff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' },
-  button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '15px' },
+  
+  // Row for Checkbox and Forgot Link
+  actionRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
+  checkboxLabel: { display: 'flex', alignItems: 'center', fontSize: '14px', color: '#666', cursor: 'pointer', gap: '8px' },
+  checkbox: { width: '18px', height: '18px', cursor: 'pointer', accentColor: '#1a1a1a' },
+  forgotLink: { fontSize: '14px', color: '#007bff', fontWeight: '600', cursor: 'pointer' },
+
+  button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '5px' },
   footerText: { marginTop: '30px', fontSize: '14px', color: '#666' },
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
 };

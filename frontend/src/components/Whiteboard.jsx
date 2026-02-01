@@ -7,12 +7,15 @@ const Whiteboard = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#0f172a');
   const [bgColor, setBgColor] = useState('#ffffff');
-  const [lineWidth, setLineWidth] = useState(5);
+  const [lineWidth, setLineWidth] = useState(8); // Increased default
   const [tool, setTool] = useState('brush');
   
   const [history, setHistory] = useState([]); 
   const [redoStack, setRedoStack] = useState([]);
   const [colorTray, setColorTray] = useState(['#0f172a', '#3b82f6', '#ef4444', '#10b981', '#f59e0b']);
+
+  const lastPoint = useRef(null);
+  const currentWidth = useRef(8); // To track smoothed width
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -54,30 +57,24 @@ const Whiteboard = () => {
   useEffect(() => {
     if (contextRef.current) {
       contextRef.current.strokeStyle = tool === 'eraser' ? bgColor : color;
-      contextRef.current.lineWidth = tool === 'eraser' ? lineWidth * 3 : lineWidth;
     }
-  }, [color, lineWidth, tool, bgColor]);
+  }, [color, tool, bgColor]);
 
   const getCoordinates = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    
     if (e.touches && e.touches[0]) {
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
-      };
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
     }
-    return {
-      x: e.nativeEvent.offsetX,
-      y: e.nativeEvent.offsetY
-    };
+    return { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
   };
 
   const startDrawing = (e) => {
     const { x, y } = getCoordinates(e);
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
+    lastPoint.current = { x, y };
+    currentWidth.current = tool === 'eraser' ? lineWidth * 3 : lineWidth;
     setIsDrawing(true);
     if (e.type === 'touchstart') e.preventDefault();
   };
@@ -85,8 +82,25 @@ const Whiteboard = () => {
   const draw = (e) => {
     if (!isDrawing) return;
     const { x, y } = getCoordinates(e);
+    
+    // 1. Calculate distance (velocity)
+    const dist = Math.sqrt(Math.pow(x - lastPoint.current.x, 2) + Math.pow(y - lastPoint.current.y, 2));
+    
+    // 2. Determine target width based on speed
+    // Fast = Thin, Slow = Thick
+    const baseWidth = tool === 'eraser' ? lineWidth * 3 : lineWidth;
+    const velocityFactor = 0.5; // Tweak this for sensitivity
+    const targetWidth = Math.max(baseWidth * (1 - dist / (40 * velocityFactor)), baseWidth * 0.3);
+
+    // 3. EXPONENTIAL SMOOTHING (The secret sauce for visible thickness)
+    // This prevents the line from changing size too abruptly
+    currentWidth.current = currentWidth.current * 0.85 + targetWidth * 0.15;
+
+    contextRef.current.lineWidth = currentWidth.current;
     contextRef.current.lineTo(x, y);
     contextRef.current.stroke();
+    
+    lastPoint.current = { x, y };
     if (e.type === 'touchmove') e.preventDefault();
   };
 
@@ -181,58 +195,34 @@ const Whiteboard = () => {
   return (
     <div style={styles.container}>
       <div className="whiteboard-toolbar" style={styles.toolbar}>
-        {/* Color Group */}
         <div style={styles.toolGroup}>
           <div style={styles.colorInputWrapper}>
             <input type="color" value={color} onChange={(e) => updateColor(e.target.value)} style={styles.hiddenColorInput} />
             <div style={{...styles.colorPreview, backgroundColor: color}} />
           </div>
-          
-          {/* COLOR TRAY RESTORED FOR DESKTOP - CLEARS WARNING */}
           <div className="hide-mobile" style={styles.colorTray}>
             {colorTray.map((c, i) => (
-              <div 
-                key={i} 
-                onClick={() => setColor(c)} 
-                style={{
-                  ...styles.trayCircle, 
-                  backgroundColor: c, 
-                  border: color === c ? '2px solid #3b82f6' : '1px solid #e2e8f0',
-                  transform: color === c ? 'scale(1.1)' : 'scale(1)'
-                }} 
-              />
+              <div key={i} onClick={() => setColor(c)} style={{...styles.trayCircle, backgroundColor: c, border: color === c ? '2px solid #3b82f6' : '1px solid #e2e8f0'}} />
             ))}
           </div>
-
           <div style={styles.divider} />
           <div style={styles.colorInputWrapper}>
             <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} style={styles.hiddenColorInput} />
-            <div style={{...styles.colorPreview, backgroundColor: bgColor, borderRadius: '4px'}} title="Page Color" />
+            <div style={{...styles.colorPreview, backgroundColor: bgColor, borderRadius: '4px'}} />
           </div>
         </div>
 
-        {/* Tools Group */}
         <div style={styles.toolGroup}>
           <ToolButton icon="🖌️" isActive={tool === 'brush'} onClick={() => setTool('brush')} />
           <ToolButton icon="🧼" isActive={tool === 'eraser'} onClick={() => setTool('eraser')} colorScheme="#64748b" />
           <div style={styles.divider} />
           <div style={styles.thicknessWrapper}>
-            {[4, 12, 24].map(size => (
-              <div 
-                key={size} 
-                onClick={() => setLineWidth(size)}
-                style={{
-                  ...styles.thicknessDot, 
-                  width: size/4 + 6, 
-                  height: size/4 + 6, 
-                  backgroundColor: lineWidth === size ? '#3b82f6' : '#cbd5e1'
-                }} 
-              />
+            {[4, 15, 30].map(size => (
+              <div key={size} onClick={() => setLineWidth(size)} style={{...styles.thicknessDot, width: size/4 + 8, height: size/4 + 8, backgroundColor: lineWidth === size ? '#3b82f6' : '#cbd5e1'}} />
             ))}
           </div>
         </div>
 
-        {/* Actions Group */}
         <div style={styles.toolGroup}>
           <div style={{ display: 'flex', gap: '4px' }}>
             <ToolButton icon="↩️" onClick={undo} />
@@ -260,7 +250,7 @@ const Whiteboard = () => {
 
       <style>{`
         @media (max-width: 768px) {
-          .whiteboard-toolbar { padding: 6px 10px !important; gap: 4px !important; justify-content: space-between !important; border-radius: 12px !important; }
+          .whiteboard-toolbar { padding: 6px 10px !important; gap: 4px !important; justify-content: space-between !important; }
           .hide-mobile { display: none !important; }
         }
       `}</style>
@@ -277,9 +267,9 @@ const styles = {
   colorInputWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   hiddenColorInput: { position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' },
   colorPreview: { width: '26px', height: '26px', borderRadius: '50%', border: '2px solid #e2e8f0' },
-  colorTray: { display: 'flex', gap: '8px', padding: '0 5px' },
-  trayCircle: { width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s' },
-  thicknessWrapper: { display: 'flex', alignItems: 'center', gap: '6px' },
+  colorTray: { display: 'flex', gap: '8px' },
+  trayCircle: { width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer' },
+  thicknessWrapper: { display: 'flex', alignItems: 'center', gap: '8px' },
   thicknessDot: { borderRadius: '50%', cursor: 'pointer' },
   canvasWrapper: { flex: 1, borderRadius: '20px', border: '1px solid #e2e8f0', overflow: 'hidden' },
   canvas: { width: '100%', height: '100%', touchAction: 'none' }
