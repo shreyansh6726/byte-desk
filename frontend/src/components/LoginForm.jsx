@@ -10,12 +10,18 @@ const LoginForm = ({ setUser }) => {
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [userName, setUserName] = useState('');
+  const [progressWidth, setProgressWidth] = useState(0);
+  
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsPending(true);
+    setProgressWidth(0);
+
+    // Start the slow crawl (85% over several seconds to cover server wake-up)
+    setTimeout(() => setProgressWidth(85), 50);
 
     try {
       const API_BASE_URL = window.location.hostname === 'localhost' 
@@ -30,32 +36,41 @@ const LoginForm = ({ setUser }) => {
 
       const result = await response.json();
 
-      if (response.ok) {
-        const loggedUser = result.username || formData.user_id;
-        
-        if (rememberMe) {
-          localStorage.setItem('user', JSON.stringify(loggedUser));
-        } else {
-          sessionStorage.setItem('user', JSON.stringify(loggedUser));
-        }
-        
-        sessionStorage.setItem('session_active', 'true');
-        
-        setUserName(loggedUser);
-        setIsPending(false);
-        setIsSuccess(true);
+      // SIGNAL RECEIVED: Zip to 100% instantly
+      setProgressWidth(100);
 
-        setTimeout(() => {
-          setUser(loggedUser);
-          navigate('/');
-        }, 2200);
-      } else {
-        setIsPending(false);
-        setError(result.message || "Invalid User ID or Password");
-      }
+      // Wait for the bar to visually hit the end (400ms) before changing UI
+      setTimeout(() => {
+        if (response.ok) {
+          const loggedUser = result.username || formData.user_id;
+          
+          if (rememberMe) {
+            localStorage.setItem('user', JSON.stringify(loggedUser));
+          } else {
+            sessionStorage.setItem('user', JSON.stringify(loggedUser));
+          }
+          
+          sessionStorage.setItem('session_active', 'true');
+          setUserName(loggedUser);
+          setIsPending(false);
+          setIsSuccess(true);
+
+          setTimeout(() => {
+            setUser(loggedUser);
+            navigate('/');
+          }, 2000);
+        } else {
+          setIsPending(false);
+          setError(result.message || "Invalid User ID or Password");
+        }
+      }, 400);
+
     } catch (err) {
-      setIsPending(false);
-      setError("Connection failed. Please try again later.");
+      setProgressWidth(100);
+      setTimeout(() => {
+        setIsPending(false);
+        setError("Connection failed. Please try again later.");
+      }, 400);
     }
   };
 
@@ -65,16 +80,13 @@ const LoginForm = ({ setUser }) => {
         input::-ms-reveal, input::-ms-clear { display: none !important; }
         input::-webkit-contacts-auto-fill-button,
         input::-webkit-credentials-auto-fill-button { display: none !important; visibility: hidden; pointer-events: none; }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       <AnimatePresence>
-        {/* Aesthetic Minimalist Loader with Progress Bar */}
         {isPending && (
           <motion.div 
+            key="loader-overlay"
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
@@ -82,47 +94,42 @@ const LoginForm = ({ setUser }) => {
           >
             <div style={styles.loaderContainer}>
               <div style={styles.spinner}></div>
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={styles.loaderTextContent}
-              >
-                <h3 style={styles.loaderTitle}>Connecting to Server</h3>
-                <p style={styles.loaderSub}>Waking up your workspace...</p>
+              <div style={styles.loaderTextContent}>
+                <h3 style={styles.loaderTitle}>System Authenticating</h3>
+                <p style={styles.loaderSub}>Finalizing secure connection...</p>
                 
-                {/* Visual Progress Bar */}
                 <div style={styles.progressBarBg}>
                   <motion.div 
-                    initial={{ width: "0%" }}
-                    animate={{ width: "90%" }}
-                    transition={{ duration: 8, ease: "easeOut" }} // Slow crawl to 90%
+                    animate={{ width: `${progressWidth}%` }}
+                    transition={{ 
+                      duration: progressWidth === 100 ? 0.3 : 8, 
+                      ease: progressWidth === 100 ? "easeOut" : "linear" 
+                    }}
                     style={styles.progressBarFill}
                   />
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
 
-        {/* Professional Success Transition */}
         {isSuccess && (
           <motion.div 
+            key="success-overlay"
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
             style={styles.overlay}
           >
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }} 
               animate={{ scale: [1, 1.05, 1], opacity: 1 }} 
-              transition={{ duration: 0.5 }}
               style={styles.successCard}
             >
               <div style={styles.checkmarkCircle}>
                 <span style={styles.checkmark}>✓</span>
               </div>
-              <h2 style={styles.successTitle}>Logging in, {userName}!</h2>
-              <p style={styles.successText}>Authentication verified. Welcome back.</p>
+              <h2 style={styles.successTitle}>Welcome back, {userName}!</h2>
+              <p style={styles.successText}>Access granted. Redirecting...</p>
             </motion.div>
           </motion.div>
         )}
@@ -140,7 +147,8 @@ const LoginForm = ({ setUser }) => {
               placeholder="Enter your ID" 
               value={formData.user_id}
               onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
-              required style={styles.input} 
+              required 
+              style={styles.input} 
             />
           </div>
 
@@ -152,7 +160,8 @@ const LoginForm = ({ setUser }) => {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                required style={styles.passwordInput} 
+                required 
+                style={styles.passwordInput} 
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
                 {showPassword ? "Hide" : "Show"}
@@ -190,23 +199,18 @@ const LoginForm = ({ setUser }) => {
 
 const styles = {
   background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif', position: 'relative', overflow: 'hidden' },
-  overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  
-  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '300px' },
+  overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
+  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '320px' },
   spinner: { width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '24px' },
   loaderTitle: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px 0' },
-  loaderSub: { fontSize: '14px', color: '#666', margin: '0 0 20px 0' },
-
-  // Progress Bar Styles
-  progressBarBg: { width: '100%', height: '4px', backgroundColor: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' },
+  loaderSub: { fontSize: '14px', color: '#666', margin: '0 0 24px 0' },
+  progressBarBg: { width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: '#1a1a1a', borderRadius: '10px' },
-
   successCard: { textAlign: 'center' },
   checkmarkCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px', boxShadow: '0 10px 25px rgba(40,167,69,0.3)' },
   checkmark: { color: 'white', fontSize: '40px', fontWeight: 'bold' },
   successTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700' },
   successText: { fontSize: '16px', color: '#666' },
-
   card: { backgroundColor: '#fff', padding: '50px 40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', width: '95%', maxWidth: '440px', textAlign: 'center' },
   title: { margin: '0 0 40px 0', fontSize: '32px', fontWeight: '700', color: '#1a1a1a' },
   error: { color: '#dc3545', fontSize: '14px', marginBottom: '20px', backgroundColor: '#f8d7da', padding: '12px', borderRadius: '8px' },
@@ -220,7 +224,7 @@ const styles = {
   checkboxLabel: { display: 'flex', alignItems: 'center', fontSize: '14px', color: '#666', cursor: 'pointer', gap: '8px' },
   checkbox: { width: '18px', height: '18px', cursor: 'pointer', accentColor: '#1a1a1a' },
   forgotLink: { fontSize: '14px', color: '#007bff', fontWeight: '600', cursor: 'pointer' },
-  button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '5px', transition: 'all 0.2s' },
+  button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '5px' },
   footerText: { marginTop: '30px', fontSize: '14px', color: '#666' },
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
 };
