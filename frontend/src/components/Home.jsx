@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-const Home = () => {
+// Added { user } prop to stay in sync with App.jsx
+const Home = ({ user }) => {
   const [greeting, setGreeting] = useState('');
-  const user = JSON.parse(localStorage.getItem('user')) || "Creative Mind";
+
+  // 1. Priority: Prop from App.jsx
+  // 2. Fallback: Check local storage directly
+  // 3. Default: "Creative Mind"
+  const displayName = user || JSON.parse(localStorage.getItem('user')) || "Creative Mind";
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -15,7 +20,8 @@ const Home = () => {
   return (
     <div className="home-content">
       <header className="home-header" style={styles.contentHeader}>
-        <h1 style={styles.welcomeText}>{greeting}, {user}</h1>
+        {/* Now using displayName which is reactive */}
+        <h1 style={styles.welcomeText}>{greeting}, {displayName}</h1>
         <p style={styles.subText}>Welcome to your ByteDesk Pro workspace.</p>
       </header>
 

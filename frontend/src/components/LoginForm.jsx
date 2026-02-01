@@ -31,6 +31,7 @@ const LoginForm = ({ setUser }) => {
       if (response.ok) {
         const loggedUser = result.username || formData.user_id;
         
+        // Handle Persistence based on your specific login state requirement
         if (rememberMe) {
           localStorage.setItem('user', JSON.stringify(loggedUser));
         } else {
@@ -56,6 +57,20 @@ const LoginForm = ({ setUser }) => {
 
   return (
     <div style={styles.background}>
+      {/* CSS to remove browser-default password eye/clear icons */}
+      <style>{`
+        input::-ms-reveal,
+        input::-ms-clear {
+          display: none !important;
+        }
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button {
+          display: none !important;
+          visibility: hidden;
+          pointer-events: none;
+        }
+      `}</style>
+
       <AnimatePresence>
         {isSuccess && (
           <motion.div 
@@ -84,6 +99,7 @@ const LoginForm = ({ setUser }) => {
         <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
+          
           <div style={styles.inputGroup}>
             <label style={styles.label}>User ID</label>
             <input 
@@ -91,9 +107,11 @@ const LoginForm = ({ setUser }) => {
               placeholder="Enter your ID" 
               value={formData.user_id}
               onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
-              required style={styles.input} 
+              required 
+              style={styles.input} 
             />
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
@@ -102,15 +120,19 @@ const LoginForm = ({ setUser }) => {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                required style={styles.passwordInput} 
+                required 
+                style={styles.passwordInput} 
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={styles.toggleButton}
+              >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
 
-          {/* Persistence & Forgot Password Row */}
           <div style={styles.actionRow}>
             <label style={styles.checkboxLabel}>
               <input 
@@ -131,6 +153,7 @@ const LoginForm = ({ setUser }) => {
 
           <button type="submit" style={styles.button}>Sign In</button>
         </form>
+        
         <p style={styles.footerText}>
           Don't have an account? <span onClick={() => navigate('/signup')} style={styles.link}>Sign Up</span>
         </p>
@@ -156,13 +179,10 @@ const styles = {
   input: { width: '100%', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
   passwordInput: { width: '100%', padding: '16px 60px 16px 20px', borderRadius: '12px', border: '1px solid #e0e0e0', fontSize: '16px', boxSizing: 'border-box', outline: 'none' },
   toggleButton: { position: 'absolute', right: '16px', background: 'none', border: 'none', color: '#007bff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' },
-  
-  // Row for Checkbox and Forgot Link
   actionRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
   checkboxLabel: { display: 'flex', alignItems: 'center', fontSize: '14px', color: '#666', cursor: 'pointer', gap: '8px' },
   checkbox: { width: '18px', height: '18px', cursor: 'pointer', accentColor: '#1a1a1a' },
   forgotLink: { fontSize: '14px', color: '#007bff', fontWeight: '600', cursor: 'pointer' },
-
   button: { width: '100%', padding: '16px', backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '5px' },
   footerText: { marginTop: '30px', fontSize: '14px', color: '#666' },
   link: { color: '#007bff', cursor: 'pointer', fontWeight: '600' }
