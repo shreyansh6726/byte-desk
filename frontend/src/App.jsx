@@ -11,12 +11,17 @@ import Landing from './components/LandingPage';
 
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
-  const [isReauthenticating, setIsReauthenticating] = useState(() => !!localStorage.getItem('user'));
+  
+  // FIX: Check both localStorage and sessionStorage on refresh
+  const [isReauthenticating, setIsReauthenticating] = useState(() => {
+    return !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
+  });
+  
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    // Using JSON.parse ensures "Shrey" doesn't display as ""Shrey""
+    // FIX: Fallback to sessionStorage if localStorage is empty
+    const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
     try {
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
@@ -43,6 +48,7 @@ function App() {
     setIsLoggingOut(true);
     setTimeout(() => {
       localStorage.removeItem('user');
+      sessionStorage.removeItem('user'); // Also clear session storage
       sessionStorage.removeItem('session_active');
       setUser(null);
       setIsLoggingOut(false);
@@ -118,7 +124,6 @@ function App() {
                   <span style={overlayStyles.checkmark}>✓</span>
                 </div>
               </div>
-              {/* Displaying user name here during reauth */}
               <h2 className="overlay-title" style={overlayStyles.welcomeTitle}>
                 Welcome Back, {user}!
               </h2>
@@ -136,7 +141,6 @@ function App() {
           >
             <MainLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogoutTrigger={initiateLogout}>
               <AnimatePresence mode="wait">
-                {/* CRITICAL FIX: Pass the 'user' prop to Home */}
                 {activeTab === 'Dashboard' && <Home key="dashboard" user={user} />}
                 {activeTab === 'Whiteboard' && <Whiteboard key="whiteboard" />}
                 {activeTab === 'T&C' && <TermsAndConditions key="terms" />}
