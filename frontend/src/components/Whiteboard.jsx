@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion'; // Removed AnimatePresence
+import { motion } from 'framer-motion';
 
 const Whiteboard = () => {
   const canvasRef = useRef(null);
@@ -10,38 +10,45 @@ const Whiteboard = () => {
   const [lineWidth, setLineWidth] = useState(5);
   const [tool, setTool] = useState('brush');
   
-  // Stacks for Undo/Redo
   const [history, setHistory] = useState([]); 
   const [redoStack, setRedoStack] = useState([]);
-  
-  // Color Tray (max 5)
   const [colorTray, setColorTray] = useState(['#0f172a', '#3b82f6', '#ef4444', '#10b981', '#f59e0b']);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const scale = window.devicePixelRatio || 1;
-    canvas.width = canvas.offsetWidth * scale;
-    canvas.height = canvas.offsetHeight * scale;
-    canvas.style.width = `${canvas.offsetWidth}px`;
-    canvas.style.height = `${canvas.offsetHeight}px`;
+    
+    const updateSize = () => {
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth * scale;
+      canvas.height = canvas.offsetHeight * scale;
+      const context = canvas.getContext("2d");
+      context.scale(scale, scale);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      contextRef.current = context;
+      
+      const savedDrawing = localStorage.getItem('whiteboard_save');
+      if (savedDrawing) {
+        const image = new Image();
+        image.src = savedDrawing;
+        image.onload = () => {
+          context.drawImage(image, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+        };
+      }
+    };
 
-    const context = canvas.getContext("2d");
-    context.scale(scale, scale);
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    contextRef.current = context;
+    updateSize();
+    window.addEventListener('resize', updateSize);
 
     const savedDrawing = localStorage.getItem('whiteboard_save');
     if (savedDrawing) {
-      const image = new Image();
-      image.src = savedDrawing;
-      image.onload = () => {
-        context.drawImage(image, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
-        setHistory([savedDrawing]);
-      };
+      setHistory([savedDrawing]);
     } else {
       setHistory([canvas.toDataURL()]);
     }
+
+    return () => window.removeEventListener('resize', updateSize);
   }, []);
 
   useEffect(() => {
@@ -50,6 +57,46 @@ const Whiteboard = () => {
       contextRef.current.lineWidth = tool === 'eraser' ? lineWidth * 3 : lineWidth;
     }
   }, [color, lineWidth, tool, bgColor]);
+
+  const getCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    if (e.touches && e.touches[0]) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    }
+    return {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY
+    };
+  };
+
+  const startDrawing = (e) => {
+    const { x, y } = getCoordinates(e);
+    contextRef.current.beginPath();
+    contextRef.current.moveTo(x, y);
+    setIsDrawing(true);
+    if (e.type === 'touchstart') e.preventDefault();
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const { x, y } = getCoordinates(e);
+    contextRef.current.lineTo(x, y);
+    contextRef.current.stroke();
+    if (e.type === 'touchmove') e.preventDefault();
+  };
+
+  const stopDrawing = () => {
+    if (isDrawing) {
+      contextRef.current.closePath();
+      setIsDrawing(false);
+      saveState();
+    }
+  };
 
   const updateColor = (newColor) => {
     setColor(newColor);
@@ -71,9 +118,8 @@ const Whiteboard = () => {
 
   const undo = () => {
     if (history.length <= 1) return;
-    const current = history[history.length - 1];
     const previous = history[history.length - 2];
-    
+    const current = history[history.length - 1];
     setRedoStack(prev => [...prev, current]);
     applyState(previous, () => setHistory(prev => prev.slice(0, -1)));
   };
@@ -81,7 +127,6 @@ const Whiteboard = () => {
   const redo = () => {
     if (redoStack.length === 0) return;
     const nextState = redoStack[redoStack.length - 1];
-    
     applyState(nextState, () => {
       setHistory(prev => [...prev, nextState]);
       setRedoStack(prev => prev.slice(0, -1));
@@ -95,7 +140,6 @@ const Whiteboard = () => {
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       contextRef.current.drawImage(image, 0, 0, canvasRef.current.offsetWidth, canvasRef.current.offsetHeight);
       callback();
-      localStorage.setItem('whiteboard_save', dataURL);
     };
   };
 
@@ -105,13 +149,11 @@ const Whiteboard = () => {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
-
     tempCtx.fillStyle = bgColor;
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
     tempCtx.drawImage(canvas, 0, 0);
-
     const link = document.createElement('a');
-    link.download = `ByteDesk-Design-${Date.now()}.png`;
+    link.download = `ByteDesk-${Date.now()}.png`;
     link.href = tempCanvas.toDataURL('image/png');
     link.click();
   };
@@ -121,24 +163,9 @@ const Whiteboard = () => {
     saveState();
   };
 
-  const startDrawing = ({ nativeEvent }) => {
-    const { offsetX, offsetY } = nativeEvent;
-    contextRef.current.beginPath();
-    contextRef.current.moveTo(offsetX, offsetY);
-    setIsDrawing(true);
-  };
-
-  const draw = ({ nativeEvent }) => {
-    if (!isDrawing) return;
-    const { offsetX, offsetY } = nativeEvent;
-    contextRef.current.lineTo(offsetX, offsetY);
-    contextRef.current.stroke();
-  };
-
-  const ToolButton = ({ icon, isActive, onClick, colorScheme = "#3b82f6", label }) => (
+  const ToolButton = ({ icon, isActive, onClick, colorScheme = "#3b82f6" }) => (
     <motion.button
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.9 }}
       onClick={onClick}
       style={{
         ...styles.toolBtn,
@@ -148,48 +175,56 @@ const Whiteboard = () => {
       }}
     >
       <span style={{ fontSize: '18px' }}>{icon}</span>
-      {label && <span style={{fontSize: '11px', fontWeight: 'bold'}}>{label}</span>}
     </motion.button>
   );
 
   return (
     <div style={styles.container}>
-      <motion.div initial={{ y: -20 }} animate={{ y: 0 }} style={styles.toolbar}>
+      <div className="whiteboard-toolbar" style={styles.toolbar}>
+        {/* Color Group */}
         <div style={styles.toolGroup}>
           <div style={styles.colorInputWrapper}>
             <input type="color" value={color} onChange={(e) => updateColor(e.target.value)} style={styles.hiddenColorInput} />
             <div style={{...styles.colorPreview, backgroundColor: color}} />
           </div>
-          <div style={styles.colorTray}>
+          
+          {/* COLOR TRAY RESTORED FOR DESKTOP - CLEARS WARNING */}
+          <div className="hide-mobile" style={styles.colorTray}>
             {colorTray.map((c, i) => (
-              <motion.div 
+              <div 
                 key={i} 
-                whileHover={{ scale: 1.2 }}
-                onClick={() => setColor(c)}
-                style={{...styles.trayCircle, backgroundColor: c, border: color === c ? '2px solid #3b82f6' : '1px solid #e2e8f0'}} 
+                onClick={() => setColor(c)} 
+                style={{
+                  ...styles.trayCircle, 
+                  backgroundColor: c, 
+                  border: color === c ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                  transform: color === c ? 'scale(1.1)' : 'scale(1)'
+                }} 
               />
             ))}
           </div>
+
           <div style={styles.divider} />
           <div style={styles.colorInputWrapper}>
             <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} style={styles.hiddenColorInput} />
-            <div style={{...styles.colorPreview, backgroundColor: bgColor, borderRadius: '4px'}} />
-            <span style={{fontSize: '10px', fontWeight: 'bold', marginLeft: '5px'}}>PAGE</span>
+            <div style={{...styles.colorPreview, backgroundColor: bgColor, borderRadius: '4px'}} title="Page Color" />
           </div>
         </div>
 
+        {/* Tools Group */}
         <div style={styles.toolGroup}>
           <ToolButton icon="🖌️" isActive={tool === 'brush'} onClick={() => setTool('brush')} />
           <ToolButton icon="🧼" isActive={tool === 'eraser'} onClick={() => setTool('eraser')} colorScheme="#64748b" />
+          <div style={styles.divider} />
           <div style={styles.thicknessWrapper}>
-            {[2, 8, 15, 30].map(size => (
+            {[4, 12, 24].map(size => (
               <div 
                 key={size} 
                 onClick={() => setLineWidth(size)}
                 style={{
                   ...styles.thicknessDot, 
-                  width: size/1.5 + 4, 
-                  height: size/1.5 + 4, 
+                  width: size/4 + 6, 
+                  height: size/4 + 6, 
                   backgroundColor: lineWidth === size ? '#3b82f6' : '#cbd5e1'
                 }} 
               />
@@ -197,49 +232,56 @@ const Whiteboard = () => {
           </div>
         </div>
 
+        {/* Actions Group */}
         <div style={styles.toolGroup}>
-          <ToolButton icon="↩️" onClick={undo} label="Undo" />
-          <ToolButton icon="↪️" onClick={redo} label="Redo" />
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <ToolButton icon="↩️" onClick={undo} />
+            <ToolButton icon="↪️" onClick={redo} />
+          </div>
           <div style={styles.divider} />
-          <ToolButton icon="💾" onClick={downloadCanvas} colorScheme="#10b981" isActive={false} />
-          <ToolButton icon="🗑️" onClick={clearCanvas} colorScheme="#ef4444" isActive={false} />
+          <ToolButton icon="💾" onClick={downloadCanvas} />
+          <ToolButton icon="🗑️" onClick={clearCanvas} />
         </div>
-      </motion.div>
+      </div>
 
       <div style={{...styles.canvasWrapper, backgroundColor: bgColor}}>
         <canvas 
+          ref={canvasRef}
           onMouseDown={startDrawing} 
-          onMouseUp={() => { setIsDrawing(false); contextRef.current.closePath(); saveState(); }} 
           onMouseMove={draw} 
-          onMouseLeave={() => setIsDrawing(false)}
-          ref={canvasRef} 
+          onMouseUp={stopDrawing} 
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
           style={{...styles.canvas, cursor: tool === 'eraser' ? 'cell' : 'crosshair'}} 
         />
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .whiteboard-toolbar { padding: 6px 10px !important; gap: 4px !important; justify-content: space-between !important; border-radius: 12px !important; }
+          .hide-mobile { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
 
 const styles = {
-  container: { display: 'flex', flexDirection: 'column', height: '100%', width: '100%', gap: '15px' },
-  toolbar: { 
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 25px', 
-    backgroundColor: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)' 
-  },
-  toolGroup: { display: 'flex', alignItems: 'center', gap: '12px' },
-  toolBtn: { 
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 12px', 
-    borderRadius: '12px', cursor: 'pointer', border: '1px solid #e2e8f0', minWidth: '50px'
-  },
-  divider: { width: '1px', height: '30px', backgroundColor: '#e2e8f0', margin: '0 5px' },
-  colorInputWrapper: { position: 'relative', display: 'flex', alignItems: 'center', cursor: 'pointer' },
+  container: { display: 'flex', flexDirection: 'column', height: '100%', width: '100%', gap: '10px' },
+  toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', backgroundColor: '#ffffff', borderRadius: '15px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
+  toolGroup: { display: 'flex', alignItems: 'center', gap: '8px' },
+  toolBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', borderRadius: '10px', cursor: 'pointer', minWidth: '40px', border: 'none' },
+  divider: { width: '1px', height: '24px', backgroundColor: '#e2e8f0' },
+  colorInputWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   hiddenColorInput: { position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' },
-  colorPreview: { width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #e2e8f0' },
-  colorTray: { display: 'flex', gap: '6px', backgroundColor: '#f8fafc', padding: '5px 10px', borderRadius: '20px', border: '1px solid #e2e8f0' },
-  trayCircle: { width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer' },
-  thicknessWrapper: { display: 'flex', alignItems: 'center', gap: '10px', padding: '0 10px' },
-  thicknessDot: { borderRadius: '50%', cursor: 'pointer', transition: '0.2s' },
-  canvasWrapper: { flex: 1, borderRadius: '30px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: 'inner 0 4px 10px rgba(0,0,0,0.05)', transition: 'background-color 0.3s ease' },
+  colorPreview: { width: '26px', height: '26px', borderRadius: '50%', border: '2px solid #e2e8f0' },
+  colorTray: { display: 'flex', gap: '8px', padding: '0 5px' },
+  trayCircle: { width: '20px', height: '20px', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s' },
+  thicknessWrapper: { display: 'flex', alignItems: 'center', gap: '6px' },
+  thicknessDot: { borderRadius: '50%', cursor: 'pointer' },
+  canvasWrapper: { flex: 1, borderRadius: '20px', border: '1px solid #e2e8f0', overflow: 'hidden' },
   canvas: { width: '100%', height: '100%', touchAction: 'none' }
 };
 

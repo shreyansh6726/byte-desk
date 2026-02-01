@@ -19,17 +19,10 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Haptic Feedback & Re-auth Logic
   useEffect(() => {
     const sessionStarted = sessionStorage.getItem('session_active');
 
     if (user && isReauthenticating && !sessionStarted) {
-      // Trigger Haptic Vibration on mount
-      if ("vibrate" in navigator) {
-        // A short, crisp double-pulse typical for success
-        navigator.vibrate([40, 30, 40]);
-      }
-
       const timer = setTimeout(() => {
         setIsReauthenticating(false);
         sessionStorage.setItem('session_active', 'true');
@@ -43,9 +36,6 @@ function App() {
 
   const initiateLogout = () => {
     setIsLoggingOut(true);
-    // Subtle vibration for logout as well
-    if ("vibrate" in navigator) navigator.vibrate(20);
-    
     setTimeout(() => {
       localStorage.removeItem('user');
       sessionStorage.removeItem('session_active');
@@ -114,6 +104,7 @@ function App() {
               style={overlayStyles.successCard}
             >
               <div style={overlayStyles.checkmarkContainer}>
+                {/* The Rotating Spinner Border */}
                 <motion.div 
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
@@ -167,14 +158,46 @@ function App() {
 const overlayStyles = {
   successOverlay: { position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#ffffff', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 20px' },
   logoutOverlay: { position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center' },
+  
   successCard: { textAlign: 'center', width: '100%', maxWidth: '600px' }, 
+  
+  // New Container to layer spinner and checkmark
   checkmarkContainer: { position: 'relative', width: '90px', height: '90px', margin: '0 auto 25px', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  spinnerBorder: { position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', border: '3px solid transparent', borderTopColor: '#28a745', zIndex: 1 },
-  checkmarkCircle: { width: '75px', height: '75px', borderRadius: '50%', backgroundColor: '#28a745', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 10px 25px rgba(40,167,69,0.2)', zIndex: 2 },
+  
+  spinnerBorder: { 
+    position: 'absolute', 
+    width: '100%', 
+    height: '100%', 
+    borderRadius: '50%', 
+    border: '3px solid transparent', 
+    borderTopColor: '#28a745', 
+    zIndex: 1 
+  },
+
+  checkmarkCircle: { 
+    width: '75px', 
+    height: '75px', 
+    borderRadius: '50%', 
+    backgroundColor: '#28a745', 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    boxShadow: '0 10px 25px rgba(40,167,69,0.2)',
+    zIndex: 2
+  },
+
   lockCircle: { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#0f172a', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 20px', boxShadow: '0 10px 25px rgba(15,23,42,0.3)' },
   lockIcon: { fontSize: '35px' },
   checkmark: { color: 'white', fontSize: '36px', fontWeight: 'bold' },
-  welcomeTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700', fontFamily: '"Inter", sans-serif', whiteSpace: 'nowrap' },
+  
+  welcomeTitle: { 
+    fontSize: '28px', 
+    color: '#1a1a1a', 
+    fontWeight: '700', 
+    fontFamily: '"Inter", sans-serif',
+    whiteSpace: 'nowrap'
+  },
+  
   successTitle: { fontSize: '28px', color: '#1a1a1a', fontWeight: '700', fontFamily: '"Inter", sans-serif' },
   successText: { fontSize: '16px', color: '#666', fontFamily: '"Inter", sans-serif', marginBottom: '25px' },
   progressContainer: { width: '200px', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '10px', margin: '0 auto', overflow: 'hidden' },
