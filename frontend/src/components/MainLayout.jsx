@@ -7,7 +7,6 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  // Mobile specific state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -24,58 +23,64 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
     if (link === "Home") setActiveTab('Dashboard');
     else if (link === "T&C") setActiveTab('T&C');
     else setActiveTab(link);
-    setIsMobileMenuOpen(false); // Close mobile menu on click
+    setIsMobileMenuOpen(false);
   };
 
   return (
     <div style={styles.container}>
-      {/* MOBILE ONLY HEADER */}
+      {/* MOBILE HEADER - FIXED SHARPNESS */}
       <div className="mobile-only-header" style={styles.mobileHeader}>
-        <div style={styles.logoSectionMobile}>
-          <img src="/logo.png" alt="Logo" style={{width: '35px', height: '35px'}} />
-          <span style={{fontSize: '20px', fontWeight: '800', color: '#0f172a'}}>ByteDesk</span>
+        {/* Transparent Blur Layer */}
+        <div style={styles.headerBlurBg} />
+        
+        {/* Content Layer (Above the blur) */}
+        <div style={styles.mobileHeaderContent}>
+          <div style={styles.logoSectionMobile}>
+            <img src="/logo.png" alt="Logo" style={{width: '35px', height: '35px'}} />
+            <span style={{fontSize: '20px', fontWeight: '800', color: '#0f172a'}}>ByteDesk</span>
+          </div>
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={styles.threeDotBtn}>⋮</button>
         </div>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={styles.threeDotBtn}>⋮</button>
         
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              style={styles.mobileDialogue}
-            >
-              {navLinks.map((link) => (
-                <div key={link} onClick={() => handleNavClick(link)} style={styles.mobileNavListItem}>
-                  {link}
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={styles.mobileMenuBackdrop}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                style={styles.mobileDialogue}
+              >
+                {navLinks.map((link) => (
+                  <div key={link} onClick={() => handleNavClick(link)} style={styles.mobileNavListItem}>
+                    {link}
+                  </div>
+                ))}
+                <div onClick={onLogoutTrigger} style={{...styles.mobileNavListItem, color: '#ef4444', borderBottom: 'none'}}>
+                  Logout
                 </div>
-              ))}
-              <div onClick={onLogoutTrigger} style={{...styles.mobileNavListItem, color: '#ef4444', borderBottom: 'none'}}>
-                Logout
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
 
-      {/* DESKTOP NAVBAR - UNCHANGED LOGIC/STYLING */}
-      <motion.nav 
-        className="desktop-only-nav"
-        initial={{ y: -140 }} 
-        animate={{ y: 0 }} 
-        style={styles.navbar}
-      >
+      {/* DESKTOP NAVBAR (Unchanged) */}
+      <motion.nav className="desktop-only-nav" initial={{ y: -140 }} animate={{ y: 0 }} style={styles.navbar}>
         <div style={styles.logoSection}>
           <img src="/logo.png" alt="Logo" style={styles.logoImage} />
           <span style={styles.logoText}>ByteDesk</span>
         </div>
         
         <div style={styles.centerGroup}>
-          <div 
-            style={styles.searchContainer} 
-            onMouseEnter={() => setIsHovered(true)} 
-            onMouseLeave={() => setIsHovered(false)}
-          >
+          <div style={styles.searchContainer} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <svg style={styles.searchIconSvg} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -111,44 +116,26 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
         </div>
 
         <div style={styles.profileSection}>
-          <motion.button 
-            whileHover={{ scale: 1.05 }} 
-            whileTap={{ scale: 0.95 }}
-            onClick={onLogoutTrigger} 
-            style={styles.logoutBtn}
-          >
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onLogoutTrigger} style={styles.logoutBtn}>
             Logout
           </motion.button>
         </div>
       </motion.nav>
 
       <div style={styles.mainLayout}>
-        {/* DESKTOP SIDEBAR - UNCHANGED */}
-        <motion.aside 
-          className="desktop-only-sidebar"
-          animate={{ width: isCollapsed ? '90px' : '280px' }} 
-          style={styles.sidebar}
-        >
+        {/* DESKTOP SIDEBAR (Unchanged) */}
+        <motion.aside className="desktop-only-sidebar" animate={{ width: isCollapsed ? '90px' : '280px' }} style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
-            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>
-              {isCollapsed ? '→' : '←'}
-            </button>
+            <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>{isCollapsed ? '→' : '←'}</button>
           </div>
           <div style={styles.menuList}>
             {menuItems.map((item) => (
               <motion.div 
                 key={item.name} 
                 onClick={() => setActiveTab(item.name)} 
-                whileHover={{ 
-                  x: 5, 
-                  backgroundColor: activeTab === item.name ? '#f1f5f9' : '#f8fafc',
-                  transition: { duration: 0.2 }
-                }}
+                whileHover={{ x: 5, backgroundColor: activeTab === item.name ? '#f1f5f9' : '#f8fafc' }}
                 whileTap={{ scale: 0.98 }}
-                style={{
-                  ...styles.menuItem, 
-                  backgroundColor: activeTab === item.name ? '#f1f5f9' : 'transparent',
-                }}
+                style={{...styles.menuItem, backgroundColor: activeTab === item.name ? '#f1f5f9' : 'transparent'}}
               >
                 <motion.span style={styles.menuIcon} whileHover={{ scale: 1.2 }}>{item.icon}</motion.span>
                 {!isCollapsed && <span style={styles.menuText}>{item.name}</span>}
@@ -158,22 +145,19 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
         </motion.aside>
 
         <main className="main-content-scroll" style={styles.content}>
-            <div style={{ height: activeTab === 'Whiteboard' ? '100%' : 'auto' }}>
-              {children}
-            </div>
+          <div style={{ height: activeTab === 'Whiteboard' ? '100%' : 'auto' }}>
+            {children}
+          </div>
         </main>
       </div>
 
-      {/* MOBILE ONLY BOTTOM MENU */}
+      {/* MOBILE BOTTOM MENU */}
       <div className="mobile-only-bottom-nav" style={styles.mobileBottomNav}>
         {menuItems.map((item) => (
           <div 
             key={item.name} 
             onClick={() => setActiveTab(item.name)} 
-            style={{
-              ...styles.mobileBottomItem,
-              color: activeTab === item.name ? '#0f172a' : '#94a3b8'
-            }}
+            style={{...styles.mobileBottomItem, color: activeTab === item.name ? '#0f172a' : '#94a3b8'}}
           >
             <span style={{ fontSize: '24px' }}>{item.icon}</span>
             <span style={{ fontSize: '10px', fontWeight: '700' }}>{item.name}</span>
@@ -182,7 +166,6 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
         ))}
       </div>
 
-      {/* CSS GUARDRAILS */}
       <style>{`
         @media (max-width: 768px) {
           .desktop-only-nav, .desktop-only-sidebar { display: none !important; }
@@ -198,7 +181,7 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
 
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc', overflow: 'hidden' },
-  // Desktop Styles (Original)
+  // Desktop Styles
   navbar: { height: '140px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', zIndex: 100, position: 'relative' },
   logoSection: { display: 'flex', alignItems: 'center', gap: '20px' },
   logoImage: { width: '60px', height: '60px', objectFit: 'contain' },
@@ -220,13 +203,16 @@ const styles = {
   menuText: { marginLeft: '18px', fontSize: '16px', color: '#0f172a', fontWeight: '500' },
   content: { flex: 1, padding: '60px 80px', overflowY: 'auto', position: 'relative' },
 
-  // Mobile Styles
-  mobileHeader: { height: '70px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', position: 'relative', zIndex: 1001 },
+  // Mobile Styles Fixed
+  mobileHeader: { height: '70px', position: 'sticky', top: 0, zIndex: 1001, display: 'flex', alignItems: 'center' },
+  headerBlurBg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', zIndex: -1 },
+  mobileHeaderContent: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' },
   logoSectionMobile: { display: 'flex', alignItems: 'center', gap: '10px' },
   threeDotBtn: { background: 'none', border: 'none', fontSize: '30px', color: '#0f172a', cursor: 'pointer' },
-  mobileDialogue: { position: 'absolute', top: '75px', right: '15px', backgroundColor: '#fff', borderRadius: '18px', boxShadow: '0 15px 35px rgba(0,0,0,0.15)', width: '220px', padding: '10px', border: '1px solid #e2e8f0', zIndex: 2000 },
+  mobileMenuBackdrop: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.05)', backdropFilter: 'blur(4px)', zIndex: 1002 },
+  mobileDialogue: { position: 'absolute', top: '75px', right: '15px', backgroundColor: 'rgba(255, 255, 255, 0.98)', borderRadius: '18px', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', width: '220px', padding: '10px', border: '1px solid #e2e8f0', zIndex: 1003 },
   mobileNavListItem: { padding: '15px', borderBottom: '1px solid #f1f5f9', fontWeight: '600', fontSize: '15px', color: '#475569' },
-  mobileBottomNav: { height: '80px', backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', position: 'fixed', bottom: 0, width: '100%', zIndex: 1001, paddingBottom: 'env(safe-area-inset-bottom)' },
+  mobileBottomNav: { height: '80px', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(15px)', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', position: 'fixed', bottom: 0, width: '100%', zIndex: 1001, paddingBottom: 'env(safe-area-inset-bottom)' },
   mobileBottomItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', position: 'relative' },
   activeIndicator: { position: 'absolute', top: '-10px', width: '30px', height: '3px', backgroundColor: '#0f172a', borderRadius: '10px' }
 };
