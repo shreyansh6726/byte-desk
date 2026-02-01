@@ -65,10 +65,14 @@ const LoginForm = ({ setUser }) => {
         input::-ms-reveal, input::-ms-clear { display: none !important; }
         input::-webkit-contacts-auto-fill-button,
         input::-webkit-credentials-auto-fill-button { display: none !important; visibility: hidden; pointer-events: none; }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
       `}</style>
 
       <AnimatePresence>
-        {/* Aesthetic Minimalist Loader with Logo Animation & Progress Bar */}
+        {/* Aesthetic Minimalist Loader with Progress Bar */}
         {isPending && (
           <motion.div 
             initial={{ opacity: 0 }} 
@@ -77,35 +81,21 @@ const LoginForm = ({ setUser }) => {
             style={styles.overlay}
           >
             <div style={styles.loaderContainer}>
-              {/* Pulsing ByteDesk Logo Element */}
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.8, 1, 0.8] 
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-                style={styles.logoContainer}
-              >
-                <div style={styles.logoIcon}>B</div>
-              </motion.div>
-
+              <div style={styles.spinner}></div>
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={styles.loaderTextContent}
               >
-                <h3 style={styles.loaderTitle}>ByteDesk Pro</h3>
+                <h3 style={styles.loaderTitle}>Connecting to Server</h3>
                 <p style={styles.loaderSub}>Waking up your workspace...</p>
                 
+                {/* Visual Progress Bar */}
                 <div style={styles.progressBarBg}>
                   <motion.div 
                     initial={{ width: "0%" }}
-                    animate={{ width: "92%" }}
-                    transition={{ duration: 10, ease: "easeOut" }}
+                    animate={{ width: "90%" }}
+                    transition={{ duration: 8, ease: "easeOut" }} // Slow crawl to 90%
                     style={styles.progressBarFill}
                   />
                 </div>
@@ -200,17 +190,14 @@ const LoginForm = ({ setUser }) => {
 
 const styles = {
   background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif', position: 'relative', overflow: 'hidden' },
-  overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(15px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
+  overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
   
-  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '320px' },
-  
-  // Logo Animation Styles
-  logoContainer: { width: '70px', height: '70px', backgroundColor: '#1a1a1a', borderRadius: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '25px', boxShadow: '0 15px 35px rgba(0,0,0,0.1)' },
-  logoIcon: { color: '#fff', fontSize: '32px', fontWeight: '800', fontFamily: '"Inter", sans-serif' },
+  loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '300px' },
+  spinner: { width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '24px' },
+  loaderTitle: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px 0' },
+  loaderSub: { fontSize: '14px', color: '#666', margin: '0 0 20px 0' },
 
-  loaderTitle: { fontSize: '22px', fontWeight: '700', color: '#1a1a1a', margin: '0 0 6px 0', letterSpacing: '-0.5px' },
-  loaderSub: { fontSize: '14px', color: '#64748b', margin: '0 0 24px 0' },
-
+  // Progress Bar Styles
   progressBarBg: { width: '100%', height: '4px', backgroundColor: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: '#1a1a1a', borderRadius: '10px' },
 
