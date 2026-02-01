@@ -18,7 +18,6 @@ const User = mongoose.model('User', new mongoose.Schema({
     password: { type: String, required: true }
 }));
 
-// 2. FIXED CORS CONFIGURATION
 const allowedOrigins = [
   'https://byte-desk.vercel.app',
   'http://localhost:3000'
