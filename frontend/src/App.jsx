@@ -8,11 +8,11 @@ import Whiteboard from './components/Whiteboard';
 import TermsAndConditions from './components/TermsAndConditions';
 import LoginPage from './components/LoginForm';
 import Landing from './components/LandingPage'; 
+import SignupForm from './components/SignupForm'; // <--- 1. IMPORT YOUR FORM
 
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
   
-  // FIX: Check both localStorage and sessionStorage on refresh
   const [isReauthenticating, setIsReauthenticating] = useState(() => {
     return !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
   });
@@ -20,7 +20,6 @@ function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const [user, setUser] = useState(() => {
-    // FIX: Fallback to sessionStorage if localStorage is empty
     const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
     try {
       return savedUser ? JSON.parse(savedUser) : null;
@@ -48,23 +47,28 @@ function App() {
     setIsLoggingOut(true);
     setTimeout(() => {
       localStorage.removeItem('user');
-      sessionStorage.removeItem('user'); // Also clear session storage
+      sessionStorage.removeItem('user');
       sessionStorage.removeItem('session_active');
       setUser(null);
       setIsLoggingOut(false);
     }, 2800);
   };
 
+  // --- UNAUTHORIZED ROUTES (LANDING, LOGIN, SIGNUP) ---
   if (!user && !isLoggingOut) {
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
+        {/* 2. CONNECT THE SIGNUP ROUTE */}
+        <Route path="/signup" element={<SignupForm />} /> 
+        {/* The catch-all below will now only trigger if the path isn't /, /login, or /signup */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
   }
 
+  // --- AUTHORIZED APP ---
   return (
     <>
       <AnimatePresence mode="wait">
