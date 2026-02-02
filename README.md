@@ -88,13 +88,3 @@ ByteDesk is fully responsive. The navigation architecture transitions from a sid
 
  License
 Distributed under the MIT License. See LICENSE for more information.
-
-
----
-
-### How to use this:
-1. Create a new file named `README.md` in your project root folder.
-2. Paste the content above inside.
-3. If you have a GitHub repository, this will automatically become the beautiful homepage of your repo.
-
-Would you like me to add a **"Screenshots"** or **"Gifs"** section to the README so peopl
