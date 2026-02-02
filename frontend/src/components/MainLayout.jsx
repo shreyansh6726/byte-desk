@@ -28,12 +28,12 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
 
   return (
     <div style={styles.container}>
-      {/* MOBILE HEADER - FIXED SHARPNESS */}
+      {}
       <div className="mobile-only-header" style={styles.mobileHeader}>
-        {/* Transparent Blur Layer */}
+        {}
         <div style={styles.headerBlurBg} />
         
-        {/* Content Layer (Above the blur) */}
+        {}
         <div style={styles.mobileHeaderContent}>
           <div style={styles.logoSectionMobile}>
             <img src="/logo.png" alt="Logo" style={{width: '35px', height: '35px'}} />
@@ -72,7 +72,7 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
         </AnimatePresence>
       </div>
 
-      {/* DESKTOP NAVBAR (Unchanged) */}
+      {/* DESKTOP NAVBAR */}
       <motion.nav className="desktop-only-nav" initial={{ y: -140 }} animate={{ y: 0 }} style={styles.navbar}>
         <div style={styles.logoSection}>
           <img src="/logo.png" alt="Logo" style={styles.logoImage} />
@@ -123,7 +123,7 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
       </motion.nav>
 
       <div style={styles.mainLayout}>
-        {/* DESKTOP SIDEBAR (Unchanged) */}
+        {/* DESKTOP SIDEBAR */}
         <motion.aside className="desktop-only-sidebar" animate={{ width: isCollapsed ? '90px' : '280px' }} style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
             <button onClick={() => setIsCollapsed(!isCollapsed)} style={styles.collapseBtn}>{isCollapsed ? '→' : '←'}</button>
@@ -181,6 +181,7 @@ const MainLayout = ({ children, activeTab, setActiveTab, onLogoutTrigger }) => {
 
 const styles = {
   container: { height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif', backgroundColor: '#f8fafc', overflow: 'hidden' },
+
   // Desktop Styles
   navbar: { height: '140px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px', zIndex: 100, position: 'relative' },
   logoSection: { display: 'flex', alignItems: 'center', gap: '20px' },
@@ -203,7 +204,6 @@ const styles = {
   menuText: { marginLeft: '18px', fontSize: '16px', color: '#0f172a', fontWeight: '500' },
   content: { flex: 1, padding: '60px 80px', overflowY: 'auto', position: 'relative' },
 
-  // Mobile Styles Fixed
   mobileHeader: { height: '70px', position: 'sticky', top: 0, zIndex: 1001, display: 'flex', alignItems: 'center' },
   headerBlurBg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', zIndex: -1 },
   mobileHeaderContent: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' },

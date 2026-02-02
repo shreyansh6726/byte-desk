@@ -7,7 +7,7 @@ const Whiteboard = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#0f172a');
   const [bgColor, setBgColor] = useState('#ffffff');
-  const [lineWidth, setLineWidth] = useState(8); // Increased default
+  const [lineWidth, setLineWidth] = useState(8); 
   const [tool, setTool] = useState('brush');
   
   const [history, setHistory] = useState([]); 
@@ -15,7 +15,7 @@ const Whiteboard = () => {
   const [colorTray, setColorTray] = useState(['#0f172a', '#3b82f6', '#ef4444', '#10b981', '#f59e0b']);
 
   const lastPoint = useRef(null);
-  const currentWidth = useRef(8); // To track smoothed width
+  const currentWidth = useRef(8); 
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -83,17 +83,14 @@ const Whiteboard = () => {
     if (!isDrawing) return;
     const { x, y } = getCoordinates(e);
     
-    // 1. Calculate distance (velocity)
+    
     const dist = Math.sqrt(Math.pow(x - lastPoint.current.x, 2) + Math.pow(y - lastPoint.current.y, 2));
     
-    // 2. Determine target width based on speed
-    // Fast = Thin, Slow = Thick
+    
     const baseWidth = tool === 'eraser' ? lineWidth * 3 : lineWidth;
-    const velocityFactor = 0.5; // Tweak this for sensitivity
+    const velocityFactor = 0.5; 
     const targetWidth = Math.max(baseWidth * (1 - dist / (40 * velocityFactor)), baseWidth * 0.3);
 
-    // 3. EXPONENTIAL SMOOTHING (The secret sauce for visible thickness)
-    // This prevents the line from changing size too abruptly
     currentWidth.current = currentWidth.current * 0.85 + targetWidth * 0.15;
 
     contextRef.current.lineWidth = currentWidth.current;

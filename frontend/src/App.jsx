@@ -8,8 +8,7 @@ import Whiteboard from './components/Whiteboard';
 import TermsAndConditions from './components/TermsAndConditions';
 import LoginPage from './components/LoginForm';
 import Landing from './components/LandingPage'; 
-import SignupForm from './components/SignupForm'; // <--- 1. IMPORT YOUR FORM
-
+import SignupForm from './components/SignupForm'; 
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
   
@@ -54,21 +53,19 @@ function App() {
     }, 2800);
   };
 
-  // --- UNAUTHORIZED ROUTES (LANDING, LOGIN, SIGNUP) ---
   if (!user && !isLoggingOut) {
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
-        {/* 2. CONNECT THE SIGNUP ROUTE */}
+        {}
         <Route path="/signup" element={<SignupForm />} /> 
-        {/* The catch-all below will now only trigger if the path isn't /, /login, or /signup */}
+        {}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
   }
 
-  // --- AUTHORIZED APP ---
   return (
     <>
       <AnimatePresence mode="wait">

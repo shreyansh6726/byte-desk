@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti'; // Standard for web celebrations
+import confetti from 'canvas-confetti'; 
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({ 
@@ -12,7 +12,6 @@ const SignupForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
-  // --- CELEBRATION TRIGGER ---
   const fireConfetti = () => {
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
@@ -97,11 +96,11 @@ const SignupForm = () => {
       if (response.ok) {
         localStorage.setItem('user', JSON.stringify(formData.username));
         setIsSuccess(true);
-        fireConfetti(); // Boom! 🎊
+        fireConfetti(); 
         
         setTimeout(() => {
           navigate('/home'); 
-        }, 3500); // Slightly longer delay to let confetti shine
+        }, 3500); 
       } else {
         const result = await response.json();
         setError(result.message);

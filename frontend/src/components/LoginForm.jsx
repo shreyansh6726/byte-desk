@@ -72,7 +72,7 @@ const LoginForm = ({ setUser }) => {
       `}</style>
 
       <AnimatePresence>
-        {/* Aesthetic Minimalist Loader with Progress Bar */}
+        {}
         {isPending && (
           <motion.div 
             initial={{ opacity: 0 }} 
@@ -90,7 +90,7 @@ const LoginForm = ({ setUser }) => {
                 <h3 style={styles.loaderTitle}>Connecting to Server</h3>
                 <p style={styles.loaderSub}>Waking up your workspace...</p>
                 
-                {/* Visual Progress Bar */}
+                {}
                 <div style={styles.progressBarBg}>
                   <motion.div 
                     initial={{ width: "0%" }}
@@ -104,7 +104,7 @@ const LoginForm = ({ setUser }) => {
           </motion.div>
         )}
 
-        {/* Professional Success Transition */}
+        {}
         {isSuccess && (
           <motion.div 
             initial={{ opacity: 0 }} 
@@ -197,7 +197,6 @@ const styles = {
   loaderTitle: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px 0' },
   loaderSub: { fontSize: '14px', color: '#666', margin: '0 0 20px 0' },
 
-  // Progress Bar Styles
   progressBarBg: { width: '100%', height: '4px', backgroundColor: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' },
   progressBarFill: { height: '100%', backgroundColor: '#1a1a1a', borderRadius: '10px' },
 

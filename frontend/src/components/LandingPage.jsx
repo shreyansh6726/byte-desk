@@ -85,29 +85,29 @@ const LandingPage = () => {
       </AnimatePresence>
 
       <div style={styles.bgWrapper}>
-        {/* Animated Blue Blob - Top Right */}
+        {}
         <motion.div 
           animate={{ 
             x: [0, 40, 0], 
             y: [0, -40, 0],
-            scale: [1, 2.0, 1], // Doubled expansion area (from 1.5 to 2.0)
+            scale: [1, 2.0, 1], 
             opacity: [0.4, 0.5, 0.4] 
           }}
           transition={{ 
-            duration: 6, // Doubled speed (from 12s to 6s)
+            duration: 6, 
             repeat: Infinity, 
             ease: "easeInOut" 
           }}
           style={{ ...styles.blob, ...styles.blob1 }}
         />
         
-        {/* Animated Grey Blob - Bottom Left (Increased Intensity) */}
+        {}
         <motion.div 
           animate={{ 
             x: [0, -30, 0], 
             y: [0, 50, 0],
             scale: [1, 2.0, 1],
-            opacity: [0.6, 0.85, 0.6] // Increased opacity for higher intensity
+            opacity: [0.6, 0.85, 0.6]
           }}
           transition={{ 
             duration: 7.5, 
@@ -118,8 +118,8 @@ const LandingPage = () => {
           style={{ 
             ...styles.blob, 
             ...styles.blob2, 
-            background: '#8993a3', // Deeper, more intense grey
-            opacity: 0.7 // Higher base opacity
+            background: '#8993a3', 
+            opacity: 0.7 
           }}
         />
         <div style={styles.gridOverlay} />
