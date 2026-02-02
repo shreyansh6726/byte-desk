@@ -64,8 +64,6 @@ Bash
 Configure the Environment: The application automatically toggles between local and production APIs:
 
 ```
-Local: http://localhost:5000
-
 Production: https://byte-desk.onrender.com
 
 ```
