@@ -1,5 +1,3 @@
-README.md
-Markdown
 #  ByteDesk | Professional Workspace Solution
 
 ByteDesk is a high-performance, minimalist workspace application designed for seamless collaboration and productivity. Featuring a "secure-first" architecture, fluid motion transitions, and a responsive whiteboard environment, ByteDesk bridges the gap between simplicity and professional utility.
