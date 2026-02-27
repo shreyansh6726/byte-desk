@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti'; 
-
+import confetti from 'canvas-confetti';
+import { API_BASE_URL } from '../config';
 const SignupForm = () => {
-  const [formData, setFormData] = useState({ 
-    username: '', user_id: '', password: '', confirmPassword: '' 
+  const [formData, setFormData] = useState({
+    username: '', user_id: '', password: '', confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -33,13 +33,13 @@ const SignupForm = () => {
     if (!password) return 0;
     let points = 0;
     if (password.length >= 8) points++;
-    if (password.length >= 12) points++; 
+    if (password.length >= 12) points++;
     if (/[A-Z]/.test(password)) points++;
     if (/[0-9]/.test(password)) points++;
     if (/[^A-Za-z0-9]/.test(password)) points++;
     const hasConsecutiveIdentical = /(.)\1/.test(password);
     const hasLongRun = /([a-zA-Z]{6,})|([0-9]{6,})/.test(password);
-    if (hasConsecutiveIdentical || hasLongRun) points = Math.max(0, points - 1); 
+    if (hasConsecutiveIdentical || hasLongRun) points = Math.max(0, points - 1);
     return points;
   };
 
@@ -56,7 +56,7 @@ const SignupForm = () => {
   const strength = getStrength(formData.password);
   const isStrong = strength >= 3;
   const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== '';
-  
+
   const strengthColor = () => {
     if (strength < 1) return '#dc3545';
     if (strength < 3) return '#ffc107';
@@ -83,7 +83,7 @@ const SignupForm = () => {
     }
 
     try {
-      const response = await fetch('https://byte-desk.onrender.com/api/signup', {
+      const response = await fetch(`${API_BASE_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,11 +96,11 @@ const SignupForm = () => {
       if (response.ok) {
         localStorage.setItem('user', JSON.stringify(formData.username));
         setIsSuccess(true);
-        fireConfetti(); 
-        
+        fireConfetti();
+
         setTimeout(() => {
-          navigate('/home'); 
-        }, 3500); 
+          navigate('/home');
+        }, 3500);
       } else {
         const result = await response.json();
         setError(result.message);
@@ -144,7 +144,7 @@ const SignupForm = () => {
         <h2 style={styles.title}>Create Account</h2>
         <form onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
-          
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Full Name</label>
             <input type="text" name="username" placeholder="e.g. John Doe" onChange={handleChange} required style={styles.input} />
@@ -154,23 +154,23 @@ const SignupForm = () => {
             <label style={styles.label}>User ID</label>
             <input type="text" name="user_id" placeholder="Choose a unique ID" onChange={handleChange} required style={styles.input} />
           </div>
-          
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                name="password" 
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
                 placeholder="8-20 characters"
-                onChange={handleChange} 
-                required 
-                style={styles.passwordInput} 
+                onChange={handleChange}
+                required
+                style={styles.passwordInput}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            
+
             {formData.password && (
               <div style={styles.strengthContainer}>
                 <div style={{
@@ -179,7 +179,7 @@ const SignupForm = () => {
                   backgroundColor: strengthColor(),
                   animation: isStrong ? 'pulse-glow 1.5s infinite ease-in-out' : 'none'
                 }} />
-                <span style={{...styles.strengthText, color: strengthColor()}}>
+                <span style={{ ...styles.strengthText, color: strengthColor() }}>
                   {strength < 1 ? 'Weak' : strength < 3 ? 'Moderate' : 'Strong'}
                 </span>
               </div>
@@ -188,16 +188,16 @@ const SignupForm = () => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Confirm Password</label>
-            <input 
-              type={showPassword ? "text" : "password"} 
-              name="confirmPassword" 
+            <input
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
               placeholder="Re-enter password"
-              onChange={handleChange} 
-              required 
+              onChange={handleChange}
+              required
               style={{
                 ...styles.input,
                 borderColor: formData.confirmPassword ? (passwordsMatch ? '#28a745' : '#dc3545') : '#e0e0e0'
-              }} 
+              }}
             />
           </div>
 

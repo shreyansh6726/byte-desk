@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../config';
 
 const LoginForm = ({ setUser }) => {
   const [formData, setFormData] = useState({ user_id: '', password: '' });
@@ -18,10 +19,6 @@ const LoginForm = ({ setUser }) => {
     setIsPending(true);
 
     try {
-      const API_BASE_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : 'https://byte-desk.onrender.com';
-
       const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,15 +29,15 @@ const LoginForm = ({ setUser }) => {
 
       if (response.ok) {
         const loggedUser = result.username || formData.user_id;
-        
+
         if (rememberMe) {
           localStorage.setItem('user', JSON.stringify(loggedUser));
         } else {
           sessionStorage.setItem('user', JSON.stringify(loggedUser));
         }
-        
+
         sessionStorage.setItem('session_active', 'true');
-        
+
         setUserName(loggedUser);
         setIsPending(false);
         setIsSuccess(true);
@@ -72,27 +69,27 @@ const LoginForm = ({ setUser }) => {
       `}</style>
 
       <AnimatePresence>
-        {}
+        { }
         {isPending && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={styles.overlay}
           >
             <div style={styles.loaderContainer}>
               <div style={styles.spinner}></div>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={styles.loaderTextContent}
               >
                 <h3 style={styles.loaderTitle}>Connecting to Server</h3>
                 <p style={styles.loaderSub}>Waking up your workspace...</p>
-                
-                {}
+
+                { }
                 <div style={styles.progressBarBg}>
-                  <motion.div 
+                  <motion.div
                     initial={{ width: "0%" }}
                     animate={{ width: "90%" }}
                     transition={{ duration: 8, ease: "easeOut" }} // Slow crawl to 90%
@@ -104,17 +101,17 @@ const LoginForm = ({ setUser }) => {
           </motion.div>
         )}
 
-        {}
+        { }
         {isSuccess && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={styles.overlay}
           >
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }} 
-              animate={{ scale: [1, 1.05, 1], opacity: 1 }} 
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: [1, 1.05, 1], opacity: 1 }}
               transition={{ duration: 0.5 }}
               style={styles.successCard}
             >
@@ -132,27 +129,27 @@ const LoginForm = ({ setUser }) => {
         <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit}>
           {error && <p style={styles.error}>{error}</p>}
-          
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>User ID</label>
-            <input 
-              type="text" 
-              placeholder="Enter your ID" 
+            <input
+              type="text"
+              placeholder="Enter your ID"
               value={formData.user_id}
-              onChange={(e) => setFormData({...formData, user_id: e.target.value})} 
-              required style={styles.input} 
+              onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
+              required style={styles.input}
             />
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <div style={styles.passwordWrapper}>
-              <input 
-                type={showPassword ? "text" : "password"} 
+              <input
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                required style={styles.passwordInput} 
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required style={styles.passwordInput}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
                 {showPassword ? "Hide" : "Show"}
@@ -162,9 +159,9 @@ const LoginForm = ({ setUser }) => {
 
           <div style={styles.actionRow}>
             <label style={styles.checkboxLabel}>
-              <input 
-                type="checkbox" 
-                checked={rememberMe} 
+              <input
+                type="checkbox"
+                checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 style={styles.checkbox}
               />
@@ -175,11 +172,11 @@ const LoginForm = ({ setUser }) => {
             </span>
           </div>
 
-          <button type="submit" disabled={isPending} style={{...styles.button, opacity: isPending ? 0.7 : 1}}>
+          <button type="submit" disabled={isPending} style={{ ...styles.button, opacity: isPending ? 0.7 : 1 }}>
             {isPending ? "Verifying..." : "Sign In"}
           </button>
         </form>
-        
+
         <p style={styles.footerText}>
           Don't have an account? <span onClick={() => navigate('/signup')} style={styles.link}>Sign Up</span>
         </p>
@@ -191,7 +188,7 @@ const LoginForm = ({ setUser }) => {
 const styles = {
   background: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', fontFamily: '"Inter", sans-serif', position: 'relative', overflow: 'hidden' },
   overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  
+
   loaderContainer: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '300px' },
   spinner: { width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #1a1a1a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '24px' },
   loaderTitle: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: '0 0 8px 0' },
