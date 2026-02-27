@@ -1,5 +1,3 @@
-README.md
-Markdown
 #  ByteDesk | Professional Workspace Solution
 
 ByteDesk is a high-performance, minimalist workspace application designed for seamless collaboration and productivity. Featuring a "secure-first" architecture, fluid motion transitions, and a responsive whiteboard environment, ByteDesk bridges the gap between simplicity and professional utility.
@@ -57,6 +55,21 @@ Bash
 git clone [https://github.com/your-username/byte-desk.git](https://github.com/your-username/byte-desk.git)
 cd byte-desk
 ```
+## Install dependencies:
+
+Bash
+```npm install```
+Configure the Environment: The application automatically toggles between local and production APIs:
+
+```
+Local: http://localhost:5000
+
+Production: https://byte-desk.onrender.com
+
+```
+Run the Application:
+Bash ->
+```npm start```
 
 ##  Security & Session Logic
 
