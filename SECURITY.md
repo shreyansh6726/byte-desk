@@ -29,7 +29,7 @@ Currently, only the latest version of ByteDesk is supported for security updates
 We value the work of security researchers in keeping our community safe. If you discover a security vulnerability within ByteDesk, please report it to us as soon as possible.
 
 ###  Process
-1. **Email us:** Send a detailed report to [shreyansh.official.6726@gmail.com](mailto:shreyansh.official.6726@gmail.com).
+1. **Email us:** Send a detailed report to [shreyansh.official.6726@gmail.com](https://mail.google.com/mail/?view=cm&fs=1&to=shreyansh.official.6726@gmail.com).
 2. **Details:** Include a description of the vulnerability, steps to reproduce, and any potential impact.
 3. **Response:** We aim to acknowledge receipt of your report within 48 hours and provide a timeline for a resolution.
 
