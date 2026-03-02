@@ -5,7 +5,6 @@ const cors = require('cors');
 
 const app = express();
 
-// 1. DATABASE CONNECTION
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
@@ -25,7 +24,6 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -37,11 +35,9 @@ const corsOptions = {
   optionsSuccessStatus: 200 
 };
 
-app.use(cors(corsOptions)); // Use the robust options
+app.use(cors(corsOptions)); 
 app.use(express.json());
 
-// 3. ROUTES
-// Health check route - Open http://localhost:5000 in your browser to test
 app.get('/', (req, res) => {
     res.send("Backend is running and healthy!");
 });
