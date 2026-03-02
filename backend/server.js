@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // 1. DATABASE CONNECTION
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://shreyanshofficial6726_db_user:qVhqqTxxfadmddec@cluster0.ylrjh3i.mongodb.net/users?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log(`Connected to Database: ${mongoose.connection.name}`))
