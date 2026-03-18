@@ -12,33 +12,33 @@ import SignupForm from './components/SignupForm';
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
   
-  const [isReauthenticating, setIsReauthenticating] = useState(() => {
-    return !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
-  });
-  
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (!savedUser) return null;
     try {
-      return savedUser ? JSON.parse(savedUser) : null;
+      return JSON.parse(savedUser);
     } catch {
-      return savedUser || null;
+      return savedUser;
     }
   });
 
-  useEffect(() => {
-    const sessionStarted = sessionStorage.getItem('session_active');
+  const [isReauthenticating, setIsReauthenticating] = useState(() => {
+    const hasUser = !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
+    const hasSession = sessionStorage.getItem('session_active');
+    return hasUser && !hasSession;
+  });
 
-    if (user && isReauthenticating && !sessionStarted) {
+  useEffect(() => {
+    if (user && isReauthenticating) {
       const timer = setTimeout(() => {
         setIsReauthenticating(false);
         sessionStorage.setItem('session_active', 'true');
       }, 2200);
       return () => clearTimeout(timer);
-    } else {
-      setIsReauthenticating(false);
-      if (user) sessionStorage.setItem('session_active', 'true');
+    } else if (user) {
+      sessionStorage.setItem('session_active', 'true');
     }
   }, [user, isReauthenticating]);
 
@@ -53,7 +53,9 @@ function App() {
     }, 2800);
   };
 
-  if (!user && !isLoggingOut) {
+  const hasStoredUser = !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
+
+  if (!user && !hasStoredUser && !isLoggingOut) {
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
