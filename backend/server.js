@@ -13,29 +13,29 @@ mongoose.connect(MONGO_URI)
 
 const User = mongoose.model('User', new mongoose.Schema({
     username: String,
-    user_id: { type: String, unique: true, required: true }, 
+    user_id: { type: String, unique: true, required: true },
     password: { type: String, required: true }
 }));
 
 const allowedOrigins = [
-  'https://byte-desk.vercel.app',
-  'http://localhost:3000'
+    'https://huggingface.co/spaces/Shreyansh6726/ByteDesk',
+    'http://localhost:3000'
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: 'GET,POST,PUT,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 200 
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
-    
+
     if (!user_id || !password) {
         return res.status(400).json({ message: "Please provide ID and password" });
     }
@@ -56,9 +56,9 @@ app.post('/api/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-        res.status(200).json({ 
-            message: "Success", 
-            username: user.username 
+        res.status(200).json({
+            message: "Success",
+            username: user.username
         });
     } catch (err) {
         res.status(500).json({ message: "Server error" });
@@ -67,7 +67,7 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/signup', async (req, res) => {
     const { username, user_id, password } = req.body;
-    
+
     if (!username || !user_id || !password) {
         return res.status(400).json({ message: "All fields are required" });
     }

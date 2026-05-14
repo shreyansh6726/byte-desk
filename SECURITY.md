@@ -15,7 +15,7 @@ Currently, only the latest version of ByteDesk is supported for security updates
 
 ###  Backend Security
 - **Credential Hashing:** Passwords are never stored in plain text. We utilize `bcryptjs` with a high salt factor (10) for robust one-way hashing.
-- **Cross-Origin Resource Sharing (CORS):** The API is locked down to specific allowed origins (`https://byte-desk.vercel.app`) to prevent unauthorized cross-site requests.
+- **Cross-Origin Resource Sharing (CORS):** The API is locked down to specific allowed origins (`https://huggingface.co/spaces/Shreyansh6726/ByteDesk`) to prevent unauthorized cross-site requests.
 - **Input Validation:** Strict server-side validation for login and signup payloads.
 
 ###  Frontend Security
