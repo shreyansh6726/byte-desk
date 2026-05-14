@@ -18,8 +18,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 }));
 
 const allowedOrigins = [
-    'https://huggingface.co/spaces/Shreyansh6726/ByteDesk',
-    'http://localhost:3000'
+    'https://byte-desk.vercel.app'
 ];
 
 const corsOptions = {

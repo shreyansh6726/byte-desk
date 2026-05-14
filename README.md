@@ -28,7 +28,7 @@ ByteDesk is a high-performance, minimalist workspace application designed for se
 | :--- | :--- |
 | **Frontend** | React.js, Framed Motion, React Router v6 |
 | **Styling** | Modern CSS-in-JS (Standardized Inter Font Family) |
-| **Backend** | Node.js / Express (Hosted on Render) |
+| **Backend** | Node.js / Express (Hosted on Hugging Face Spaces) |
 | **Animations** | Framer Motion, Canvas-Confetti |
 
 ---
