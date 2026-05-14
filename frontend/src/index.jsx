@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 const globalStyles = `
-  html, body, #root {
+  body, #root {
     margin: 0; padding: 0; width: 100%; height: 100%;
     overflow: hidden; background-color: #f8f9fa;
   }
